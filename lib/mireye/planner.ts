@@ -1,10 +1,18 @@
-import { CONDITIONAL_BRANCHES, type BaselineResult, type ConditionalBranch } from './fields';
+import {
+  CONDITIONAL_BRANCHES,
+  type BaselineResult,
+  type ConditionalBranch,
+} from "./fields";
 
-export function decideBranches(baseline: BaselineResult): readonly ConditionalBranch[] {
+export function decideBranches(
+  baseline: BaselineResult,
+): readonly ConditionalBranch[] {
   return CONDITIONAL_BRANCHES.filter((b) => b.trigger(baseline));
 }
 
-export function getAllTriggeredFields(baseline: BaselineResult): readonly string[] {
+export function getAllTriggeredFields(
+  baseline: BaselineResult,
+): readonly string[] {
   const triggered = decideBranches(baseline);
   const fields = new Set<string>();
   for (const branch of triggered) {

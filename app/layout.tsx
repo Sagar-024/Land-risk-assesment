@@ -1,19 +1,24 @@
 import type { Metadata } from "next";
-import { Outfit, DM_Sans } from "next/font/google";
+import { Source_Serif_4, Inter, IBM_Plex_Mono } from "next/font/google";
 import "./globals.css";
 
-const outfit = Outfit({
+const sourceSerif = Source_Serif_4({
   subsets: ["latin"],
-  variable: "--font-outfit",
+  variable: "--font-serif",
   display: "swap",
-  weight: ["400", "500", "600", "700"],
 });
 
-const dmSans = DM_Sans({
+const inter = Inter({
   subsets: ["latin"],
-  variable: "--font-dm-sans",
+  variable: "--font-sans",
   display: "swap",
+});
+
+const ibmPlexMono = IBM_Plex_Mono({
+  subsets: ["latin"],
   weight: ["400", "500", "600"],
+  variable: "--font-mono",
+  display: "swap",
 });
 
 export const metadata: Metadata = {
@@ -27,8 +32,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className={`${outfit.variable} ${dmSans.variable}`}>
-      <body className="min-h-screen font-body antialiased">{children}</body>
+    <html
+      lang="en"
+      className={`${sourceSerif.variable} ${inter.variable} ${ibmPlexMono.variable}`}
+    >
+      <body className="min-h-screen font-sans bg-bg text-primary antialiased">
+        {children}
+      </body>
     </html>
   );
 }

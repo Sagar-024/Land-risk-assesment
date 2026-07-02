@@ -1,8 +1,10 @@
-export async function geocodeAddress(address: string): Promise<{ lat: number; lng: number }> {
+export async function geocodeAddress(
+  address: string,
+): Promise<{ lat: number; lng: number }> {
   const encoded = encodeURIComponent(address);
   const url = `https://geocoding.geo.census.gov/geocoder/locations/onelineaddress?address=${encoded}&benchmark=Public_AR_Current&format=json`;
 
-  const res = await fetch(url, { cache: 'no-store' });
+  const res = await fetch(url, { cache: "no-store" });
   if (!res.ok) {
     throw new Error(`Census geocoder error ${res.status}`);
   }
@@ -11,7 +13,9 @@ export async function geocodeAddress(address: string): Promise<{ lat: number; ln
   const matches = data.result?.addressMatches;
 
   if (!matches?.length) {
-    throw new Error(`Address not found: ${address}`);
+    throw new Error(
+      `Address not found. Try a full address like "1600 Pennsylvania Ave NW, Washington, DC 20500"`,
+    );
   }
 
   const { x: lng, y: lat } = matches[0].coordinates;

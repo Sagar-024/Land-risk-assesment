@@ -1,16 +1,23 @@
-import { NextRequest, NextResponse } from 'next/server';
-import { geocodeAddress } from '@/lib/geocode';
-import { fetchMireyeFields } from '@/lib/mireye/client';
-import { BASELINE_FIELDS, QUICK_HAZARD_FIELDS, type BaselineResult } from '@/lib/mireye/fields';
-import { decideBranches, getAllTriggeredFields } from '@/lib/mireye/planner';
-import { buildReport } from '@/lib/report';
+import { NextRequest, NextResponse } from "next/server";
+import { geocodeAddress } from "@/lib/geocode";
+import { fetchMireyeFields } from "@/lib/mireye/client";
+import {
+  BASELINE_FIELDS,
+  QUICK_HAZARD_FIELDS,
+  type BaselineResult,
+} from "@/lib/mireye/fields";
+import { decideBranches, getAllTriggeredFields } from "@/lib/mireye/planner";
+import { buildReport } from "@/lib/report";
 
 export async function POST(req: NextRequest) {
   try {
     const { address, intendedUse } = await req.json();
 
-    if (!address || typeof address !== 'string') {
-      return NextResponse.json({ error: 'address is required' }, { status: 400 });
+    if (!address || typeof address !== "string") {
+      return NextResponse.json(
+        { error: "address is required" },
+        { status: 400 },
+      );
     }
 
     const { lat, lng } = await geocodeAddress(address);
@@ -45,7 +52,7 @@ export async function POST(req: NextRequest) {
       report,
     });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown error';
+    const message = err instanceof Error ? err.message : "Unknown error";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
