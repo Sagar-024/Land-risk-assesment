@@ -107,7 +107,7 @@ export default function Home() {
           </svg>
         </div>
 
-        <div className="relative z-10 p-6 sm:p-10 border-2 border-ink/20 m-4 sm:m-10 rounded-sm bg-surface shadow-sm">
+        <div className="relative z-10 p-6 sm:p-10 m-4 sm:m-10 rounded-sm bg-surface shadow-sm">
           <div className="border-2 border-ink/20 flex flex-col rounded-sm overflow-visible relative bg-surface">
             <div className="p-6 bg-bg/60 text-center border-b-2 border-ink/20">
               <h1 className="font-serif text-3xl sm:text-4xl tracking-tight text-ink uppercase">
