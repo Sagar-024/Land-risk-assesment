@@ -3,24 +3,21 @@ export async function fetchMireyeFields(
   lng: number,
   fields: readonly string[]
 ): Promise<Record<string, unknown>> {
-  const baseUrl = process.env.MIREYE_BASE_URL;
+  const baseUrl = process.env.MIREYE_BASE_URL ?? 'https://api.mireye.com/v1';
   const token = process.env.MIREYE_API_TOKEN;
 
-  if (!baseUrl || !token) {
-    throw new Error('Mireye config missing: set MIREYE_BASE_URL and MIREYE_API_TOKEN');
+  if (!token) {
+    throw new Error('MIREYE_API_TOKEN not configured');
   }
 
-  const params = new URLSearchParams({
-    lat: lat.toString(),
-    lng: lng.toString(),
-    fields: fields.join(','),
-  });
-
-  const res = await fetch(`${baseUrl}/v1/fetch?${params}`, {
+  const res = await fetch(`${baseUrl}/fetch`, {
+    method: 'POST',
     headers: {
-      Authorization: `Bearer ${token}`,
+      'Content-Type': 'application/json',
       Accept: 'application/json',
+      Authorization: `Bearer ${token}`,
     },
+    body: JSON.stringify({ lat, lng, fields: Array.from(fields) }),
   });
 
   if (!res.ok) {
@@ -28,5 +25,10 @@ export async function fetchMireyeFields(
     throw new Error(`Mireye API error ${res.status}: ${text}`);
   }
 
-  return res.json();
+  const data = await res.json();
+  const fieldValues: Record<string, unknown> = {};
+  for (const [key, field] of Object.entries(data.fields ?? {}) as [string, { value: unknown }][]) {
+    fieldValues[key] = field.value;
+  }
+  return fieldValues;
 }

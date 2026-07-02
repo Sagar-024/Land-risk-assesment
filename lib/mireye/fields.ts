@@ -34,7 +34,7 @@ export const QUICK_HAZARD_FIELDS = [
   'seismic_design_category',
 ] as const;
 
-export type BaselineResult = Record<(typeof BASELINE_FIELDS)[number], unknown>;
+export type BaselineResult = Record<(typeof BASELINE_FIELDS)[number] | (typeof QUICK_HAZARD_FIELDS)[number], unknown>;
 
 export type ConditionalBranch = {
   id: string;
@@ -42,8 +42,9 @@ export type ConditionalBranch = {
   fields: readonly string[];
 };
 
-const get = <K extends keyof BaselineResult>(obj: BaselineResult, key: K): BaselineResult[K] =>
-  obj[key];
+function get(obj: BaselineResult, key: string): unknown {
+  return obj[key as keyof BaselineResult];
+}
 
 export const CONDITIONAL_BRANCHES: readonly ConditionalBranch[] = [
   {
@@ -144,10 +145,6 @@ export const CONDITIONAL_BRANCHES: readonly ConditionalBranch[] = [
     ] as const,
   },
 ] as const;
-
-export function decideBranches(baseline: BaselineResult): readonly ConditionalBranch[] {
-  return CONDITIONAL_BRANCHES.filter((b) => b.trigger(baseline));
-}
 
 export type FieldGroup = typeof BASELINE_FIELDS | typeof QUICK_HAZARD_FIELDS | ConditionalBranch['fields'];
 export type AllMireyeFields = (typeof BASELINE_FIELDS)[number] | (typeof QUICK_HAZARD_FIELDS)[number] | FieldGroup[number];

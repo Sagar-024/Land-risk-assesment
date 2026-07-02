@@ -1,4 +1,4 @@
-import { BASELINE_FIELDS, QUICK_HAZARD_FIELDS, type BaselineResult } from './fields';
+import { BASELINE_FIELDS, QUICK_HAZARD_FIELDS, type BaselineResult } from './mireye/fields';
 
 export type Severity = 'critical' | 'high' | 'medium' | 'low' | 'info';
 
@@ -114,7 +114,9 @@ function evaluateSeverity(field: string, value: unknown): RedFlag | null {
         sourceCitation: FIELD_CITATIONS[field] ?? 'Mireye API',
       };
     }
-    if (typeof rule.threshold === 'number' && typeof value === 'number' && value > rule.threshold) {
+    if (typeof rule.threshold === 'number' && typeof value === 'number') {
+      const passes = rule.threshold >= 0 ? value > rule.threshold : value < rule.threshold;
+      if (!passes) continue;
       return {
         severity: rule.severity,
         title: rule.message,
@@ -186,14 +188,10 @@ export function buildReport(
     'Liens, encumbrances, judgments',
     'HOA / POA covenants, fees, restrictions',
     'Mineral rights, water rights, timber rights',
-    'Septic / perc test suitability',
-    'Well yield & water quality',
-    'Building permit history & violations',
-    'Soil contamination / Phase I ESA',
-    'Neighbor disputes / boundary surveys',
-    'Insurance availability & cost (flood, fire, wind)',
-    'Property tax assessment & special assessments',
-    'Zoning compliance & permitted uses (verify locally — Mireye free tier may not have parcel_zoning)',
+    'Septic / well permitting & feasibility',
+    'Local building codes & permit requirements',
+    'Survey boundaries & encroachments',
+    'Insurance availability & cost',
   ];
 
   return { redFlags, noFlagsFound, notCovered };
