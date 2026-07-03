@@ -57,3 +57,4 @@ A high-performance Next.js application that provides comprehensive geospatial ri
 ## Deployment
 
 This project is optimized for zero-config deployment on Vercel. Connect the repository to your Vercel account and push to the `main` branch.
+
