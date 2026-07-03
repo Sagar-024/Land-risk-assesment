@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
+import AnimatedButton from "@/components/AnimatedButton";
 import { Input } from "@/components/ui/input";
 import {
   Select,
@@ -18,6 +20,25 @@ import type {
   ClearCheck,
   CheckCategory,
 } from "@/lib/report";
+import FlipText from "@/components/FlipText";
+import AmbientBackground from "@/components/AmbientBackground";
+import type { Interpretation } from "@/lib/summary/interpret";
+
+const staggerContainer = {
+  hidden: { opacity: 0 },
+  show: {
+    opacity: 1,
+    transition: {
+      delayChildren: 0.2, // wait 200ms after scroll to start
+      staggerChildren: 0.15, // slightly slower waterfall
+    },
+  },
+};
+
+const slideUpItem = {
+  hidden: { opacity: 0, y: 15 },
+  show: { opacity: 1, y: 0, transition: { type: "spring", stiffness: 300, damping: 24 } },
+};
 
 const CATEGORY_LABELS: Record<CheckCategory, string> = {
   buildability: "Buildability & Zoning",
@@ -35,12 +56,44 @@ const USE_CASES = [
   { value: "investment", label: "Investment" },
 ] as const;
 
+/** Maps intendedUse values to display labels for the In Plain Terms subtitle */
+const USE_LABELS: Record<string, string> = {
+  residential: "residential",
+  "cabin-recreational": "cabin / recreational",
+  "small-acreage-agriculture": "small-acreage agriculture",
+  investment: "investment",
+};
+
+const TEST_ADDRESSES = [
+  {
+    label: "Coastal flood zone",
+    address: "1500 Gulf Blvd, Indian Rocks Beach, FL 33785",
+    intendedUse: "residential",
+  },
+  {
+    label: "Wildfire + seismic",
+    address: "46800 Highway 1, Big Sur, CA 93920",
+    intendedUse: "cabin-recreational",
+  },
+  {
+    label: "Clean rural parcel",
+    address: "510 N Franklin Ave, Colby, KS 67701",
+    intendedUse: "small-acreage-agriculture",
+  },
+  {
+    label: "Urban / seismic only",
+    address: "100 Universal City Plaza, Universal City, CA 91608",
+    intendedUse: "investment",
+  },
+];
+
 export default function Home() {
   const [address, setAddress] = useState("");
   const [intendedUse, setIntendedUse] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [report, setReport] = useState<Report | null>(null);
+  const [interpretations, setInterpretations] = useState<Interpretation[]>([]);
   const [coordinates, setCoordinates] = useState<{
     lat: number;
     lng: number;
@@ -56,6 +109,7 @@ export default function Home() {
     setLoading(true);
     setError(null);
     setReport(null);
+    setInterpretations([]);
 
     try {
       const res = await fetch("/api/assess", {
@@ -67,6 +121,7 @@ export default function Home() {
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Request failed");
       setReport(data.report);
+      setInterpretations(data.interpretations ?? []);
       setCoordinates(data.coordinates);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -76,18 +131,29 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-bg p-4 sm:p-8 flex items-start justify-center overflow-x-hidden">
+    <div
+      className="min-h-screen w-full relative overflow-x-hidden"
+      style={{
+        backgroundImage: "url('/00da0bded3a5dc65122837ae947e3dc0.png')",
+        backgroundSize: "cover",
+        backgroundPosition: "center center",
+        backgroundRepeat: "no-repeat",
+        backgroundAttachment: "fixed",
+      }}
+    >
+      <AmbientBackground />
+      <div className="relative z-10 p-4 sm:p-8 flex items-start justify-center min-h-screen">
       <div className="relative w-full max-w-4xl mt-8 mb-16 bg-surface shadow-sm rounded-sm">
         {report && (
           <div className="absolute top-6 right-6 sm:top-14 sm:right-14 z-40 pointer-events-none rotate-[12deg] opacity-90 mix-blend-multiply flex items-center justify-center rounded-full border-[4px] border-critical text-critical w-28 h-28 sm:w-32 sm:h-32">
-            <div className="w-[86%] h-[86%] border-[3px] border-critical rounded-full flex flex-col items-center justify-center">
-              <span className="font-serif font-bold italic text-sm sm:text-base tracking-[0.2em] leading-tight text-center">
-                Official
+            <div className="w-[86%] h-[86%] border-[3px] border-critical rounded-full flex flex-col items-center justify-center gap-0.5 px-2">
+              <span className="font-serif font-bold italic text-[11px] sm:text-xs tracking-[0.12em] leading-tight text-center">
+                Evidence
                 <br />
-                Record
+                Verified
               </span>
-              <span className="font-mono font-bold text-[7px] sm:text-[8px] tracking-widest mt-1.5">
-                {currentDate}
+              <span className="font-mono font-bold text-[6px] sm:text-[7px] tracking-widest mt-1 text-center leading-tight">
+                USGS · FEMA<br />USFWS
               </span>
             </div>
           </div>
@@ -107,13 +173,13 @@ export default function Home() {
           </svg>
         </div>
 
-        <div className="relative z-10 p-6 sm:p-10 m-4 sm:m-10 rounded-sm bg-surface shadow-sm">
+        <div className="relative z-10 p-6 sm:p-10 m-4 sm:m-10 rounded-sm">
           <div className="border-2 border-ink/20 flex flex-col rounded-sm overflow-visible relative bg-surface">
             <div className="p-6 bg-bg/60 text-center border-b-2 border-ink/20">
               <h1 className="font-serif text-3xl sm:text-4xl tracking-tight text-ink uppercase">
-                Land Risk Assessment
+                <FlipText>Land Risk Assessment</FlipText>
               </h1>
-              <p className="mt-2 font-mono text-xs text-ink-secondary tracking-widest uppercase font-bold">
+              <p className="mt-2 font-mono text-[10px] text-ink-secondary tracking-widest uppercase font-bold">
                 Official Hazard & Zoning Record
               </p>
             </div>
@@ -134,7 +200,7 @@ export default function Home() {
                     placeholder="Enter a US address"
                     value={address}
                     onChange={(e) => setAddress(e.target.value)}
-                    className="h-10 rounded-sm border-2 border-ink/30 bg-bg text-ink font-mono text-sm placeholder:text-ink-secondary/50 placeholder:font-sans focus-visible:ring-0 focus-visible:border-ink"
+                    className="h-11 sm:h-10 rounded-sm border-2 border-ink/30 bg-bg text-ink font-mono text-sm placeholder:text-ink-secondary/50 placeholder:font-sans focus-visible:ring-0 focus-visible:border-ink"
                     required
                   />
                 </div>
@@ -152,7 +218,7 @@ export default function Home() {
                   >
                     <SelectTrigger
                       id="use"
-                      className="h-10 rounded-sm border-2 border-ink/30 bg-bg text-ink font-mono text-sm focus:ring-0 focus:border-ink"
+                      className="h-11 sm:h-10 rounded-sm border-2 border-ink/30 bg-bg text-ink font-mono text-sm focus:ring-0 focus:border-ink"
                     >
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
@@ -172,12 +238,31 @@ export default function Home() {
                 <Button
                   type="submit"
                   disabled={loading}
-                  className="h-10 w-full sm:w-auto px-8 rounded-sm border-2 border-ink bg-ink text-bg font-sans font-bold uppercase tracking-wider text-xs hover:bg-ink/90 transition-none disabled:opacity-50"
+                  className="h-11 sm:h-10 w-full sm:w-auto px-8 rounded-sm border-2 border-ink bg-ink text-bg font-sans font-bold uppercase tracking-wider text-xs hover:bg-ink/90 transition-none disabled:opacity-50"
                 >
                   {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {loading ? "Assessing" : "Run Assessment"}
                 </Button>
               </form>
+
+              <div className="mt-6 flex flex-wrap gap-2 items-center">
+                <span className="text-[10px] font-mono font-bold uppercase text-ink-secondary tracking-widest mr-2">
+                  Quick Tests:
+                </span>
+                {TEST_ADDRESSES.map((test, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    onClick={() => {
+                      setAddress(test.address);
+                      setIntendedUse(test.intendedUse);
+                    }}
+                    className="px-2 py-1 bg-ink/5 border border-ink/10 rounded-sm text-[10px] font-sans font-bold text-ink hover:bg-ink/10 hover:border-ink/20 transition-colors uppercase tracking-wider"
+                  >
+                    {test.label}
+                  </button>
+                ))}
+              </div>
               {error && (
                 <div className="mt-4 rounded-sm border-2 border-critical bg-critical/10 px-4 py-3 text-sm text-critical font-mono font-bold">
                   ERROR: {error}
@@ -190,7 +275,9 @@ export default function Home() {
             <ReportDisplay
               report={report}
               address={address}
+              intendedUse={intendedUse}
               coordinates={coordinates}
+              interpretations={interpretations}
             />
           )}
         </div>
@@ -200,17 +287,22 @@ export default function Home() {
         </p>
       </div>
     </div>
+    </div>
   );
 }
 
 function ReportDisplay({
   report,
   address,
+  intendedUse,
   coordinates,
+  interpretations,
 }: {
   report: Report;
   address: string;
+  intendedUse: string;
   coordinates: { lat: number; lng: number } | null;
+  interpretations: Interpretation[];
 }) {
   const { redFlags, clearChecks, notCovered, summary } = report;
 
@@ -268,16 +360,22 @@ function ReportDisplay({
           </div>
         </div>
 
-        <div className="flex flex-wrap border-2 border-ink/20 bg-ink/5 rounded-sm overflow-hidden divide-y-2 md:divide-y-0 md:divide-x-2 divide-ink/20">
-          <div className="flex-1 bg-surface px-5 py-4 flex flex-col justify-center min-w-[120px]">
+        <motion.div
+          variants={staggerContainer}
+          initial="hidden"
+          whileInView="show"
+          viewport={{ once: true, amount: 0.4 }}
+          className="flex flex-wrap border-2 border-ink/20 bg-ink/5 rounded-sm overflow-hidden divide-y-2 md:divide-y-0 md:divide-x-2 divide-ink/20"
+        >
+          <motion.div variants={slideUpItem} className="flex-1 bg-surface px-5 py-4 flex flex-col justify-center min-w-[120px]">
             <span className="font-sans text-[10px] font-bold uppercase tracking-wider text-ink-secondary mb-1">
               Total Checks
             </span>
             <span className="font-mono text-3xl text-ink font-bold">
               {summary.totalChecks}
             </span>
-          </div>
-          <div className="flex-1 bg-surface px-5 py-4 flex flex-col justify-center min-w-[120px]">
+          </motion.div>
+          <motion.div variants={slideUpItem} className="flex-1 bg-surface px-5 py-4 flex flex-col justify-center min-w-[120px]">
             <span className="font-sans text-[10px] font-bold uppercase tracking-wider text-ink-secondary mb-1">
               Critical
             </span>
@@ -286,8 +384,8 @@ function ReportDisplay({
             >
               {summary.flagsBySeverity.critical}
             </span>
-          </div>
-          <div className="flex-1 bg-surface px-5 py-4 flex flex-col justify-center min-w-[120px]">
+          </motion.div>
+          <motion.div variants={slideUpItem} className="flex-1 bg-surface px-5 py-4 flex flex-col justify-center min-w-[120px]">
             <span className="font-sans text-[10px] font-bold uppercase tracking-wider text-ink-secondary mb-1">
               High
             </span>
@@ -296,35 +394,80 @@ function ReportDisplay({
             >
               {summary.flagsBySeverity.high}
             </span>
-          </div>
-          <div className="flex-1 bg-surface px-5 py-4 flex flex-col justify-center min-w-[120px]">
+          </motion.div>
+          <motion.div variants={slideUpItem} className="flex-1 bg-surface px-5 py-4 flex flex-col justify-center min-w-[120px]">
             <span className="font-sans text-[10px] font-bold uppercase tracking-wider text-ink-secondary mb-1">
               Clear
             </span>
             <span className="font-mono text-3xl text-clear font-bold">
               {summary.clearCount}
             </span>
-          </div>
-        </div>
+          </motion.div>
+        </motion.div>
       </div>
 
-      {redFlags.length > 0 && (
+      {/* IN PLAIN TERMS — presentation layer only, runs after report is built */}
+      {interpretations.length > 0 && (
         <section>
-          <div className="mb-4">
+          <div className="mb-4 border-b-2 border-ink/20 pb-3">
             <h2 className="font-serif text-2xl font-bold text-ink">
-              Flags & Encumbrances
+              What These Findings Mean
             </h2>
+            <p className="mt-1 font-mono text-[10px] text-ink-secondary uppercase tracking-widest font-bold">
+              For {USE_LABELS[intendedUse] ?? intendedUse} use
+            </p>
           </div>
-          <div className="space-y-4">
-            {redFlags.map((flag, i) => (
-              <RedFlagCard key={i} flag={flag} />
+          <motion.ol
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.3 }}
+            className="space-y-3"
+          >
+            {interpretations.map((item, i) => (
+              <InPlainTermsItem key={i} item={item} index={i} />
             ))}
+          </motion.ol>
+          <div className="mt-5 pt-3 border-t border-ink/10">
+            <a
+              href="#evidence-report"
+              onClick={(e) => {
+                e.preventDefault();
+                document
+                  .getElementById("evidence-report")
+                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
+              }}
+              className="font-mono text-[11px] font-bold uppercase tracking-widest text-ink-secondary hover:text-ink transition-colors cursor-pointer"
+            >
+              See full evidence report ↓
+            </a>
           </div>
         </section>
       )}
 
+      {redFlags.length > 0 && (
+        <section id="evidence-report">
+          <div className="mb-4">
+            <h2 className="font-serif text-2xl font-bold text-ink">
+              Flags &amp; Encumbrances
+            </h2>
+          </div>
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+            className="space-y-4"
+          >
+            {redFlags.map((flag, i) => (
+              <RedFlagCard key={i} flag={flag} />
+            ))}
+          </motion.div>
+        </section>
+      )}
+
       {clearChecks.length > 0 && (
-        <section>
+        <section id={redFlags.length === 0 ? "evidence-report" : undefined}>
           <div className="mb-4">
             <h2 className="font-serif text-2xl font-bold text-ink">
               Clear Checks
@@ -429,7 +572,7 @@ function RedFlagCard({ flag }: { flag: RedFlag }) {
   const hideEvidence = flag.evidence === "Yes" || flag.evidence === "No";
 
   return (
-    <div className="flex flex-col gap-1 pb-5 border-b-2 border-ink/20 last:border-b-0">
+    <motion.div variants={slideUpItem} className="flex flex-col gap-1 pb-5 border-b-2 border-ink/20 last:border-b-0">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span
@@ -458,6 +601,67 @@ function RedFlagCard({ flag }: { flag: RedFlag }) {
           </span>
         </div>
       )}
-    </div>
+    </motion.div>
+  );
+}
+
+/**
+ * InPlainTermsItem
+ *
+ * Renders one interpretation entry using the existing design system.
+ * Uses existing severity color tokens (text-critical, text-high, text-ink-secondary).
+ * No new visual language, no new components, no new colors.
+ */
+function InPlainTermsItem({
+  item,
+  index,
+}: {
+  item: Interpretation;
+  index: number;
+}) {
+  const isZeroFlags = item.sourceField === "__zero_flags__";
+
+  const severityColor = isZeroFlags
+    ? "text-clear"
+    : item.severity === "critical"
+      ? "text-critical"
+      : item.severity === "high"
+        ? "text-high"
+        : "text-ink-secondary";
+
+  const dotColor = isZeroFlags
+    ? "bg-clear"
+    : item.severity === "critical"
+      ? "bg-critical"
+      : item.severity === "high"
+        ? "bg-high"
+        : "bg-ink-secondary";
+
+  const label = isZeroFlags
+    ? "clear"
+    : item.severity;
+
+  return (
+    <motion.li variants={slideUpItem} className="flex gap-3 items-start py-3 border-b border-ink/10 last:border-b-0">
+      {/* Index number in mono, existing design pattern */}
+      <span className="font-mono text-[10px] font-bold text-ink-secondary shrink-0 mt-[3px] w-4 text-right">
+        {String(index + 1).padStart(2, "0")}
+      </span>
+
+      <div className="flex-1 space-y-1">
+        {/* Severity badge */}
+        <div className="flex items-center gap-1.5 mb-1">
+          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor}`} />
+          <span className={`font-mono text-[9px] uppercase tracking-widest font-bold ${severityColor}`}>
+            {label}
+          </span>
+        </div>
+
+        {/* The plain-language sentence */}
+        <p className="font-sans text-sm text-ink leading-relaxed">
+          {item.sentence}
+        </p>
+      </div>
+    </motion.li>
   );
 }

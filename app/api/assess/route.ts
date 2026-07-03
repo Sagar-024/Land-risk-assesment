@@ -8,6 +8,8 @@ import {
 } from "@/lib/mireye/fields";
 import { decideBranches, getAllTriggeredFields } from "@/lib/mireye/planner";
 import { buildReport } from "@/lib/report";
+import { interpret, type Interpretation } from "@/lib/summary/interpret";
+import { polish } from "@/lib/summary/polish";
 
 export async function POST(req: NextRequest) {
   try {
@@ -45,11 +47,29 @@ export async function POST(req: NextRequest) {
 
     const report = buildReport(mergedBaseline, quickHazard, branchResults);
 
+    // ── Plain-language interpretation layer (Phase 1 + 2) ─────────────────
+    // Step 1: interpret() — pure, synchronous, reads finished report only.
+    // Step 2: polish()   — optional async LLM readability pass (DeepSeek).
+    //         Falls back to interpret() output on any failure (timeout,
+    //         bad JSON, validation fail, missing key). Report always renders.
+    // Neither step modifies the report or influences any upstream logic.
+    let interpretations: Interpretation[] = [];
+    try {
+      const raw = interpret(report, intendedUse ?? "residential");
+      const { interpretations: polished } = await polish(raw);
+      interpretations = polished;
+    } catch {
+      // Constraint: if this layer throws for any reason, interpretations = []
+      // and the rest of the response is unaffected.
+      interpretations = [];
+    }
+
     return NextResponse.json({
       address,
       intendedUse,
       coordinates: { lat, lng },
       report,
+      interpretations, // pre-computed server-side; API key never leaves server
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : "Unknown error";
