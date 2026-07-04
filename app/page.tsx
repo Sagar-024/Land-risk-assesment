@@ -1,4 +1,4 @@
-"use client";
+"use client"; // Trigger rebuild
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
