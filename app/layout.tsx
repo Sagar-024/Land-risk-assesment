@@ -1,9 +1,10 @@
 import type { Metadata } from "next";
-import { Source_Serif_4, Inter, IBM_Plex_Mono } from "next/font/google";
+import { Instrument_Serif, Inter } from "next/font/google";
 import "./globals.css";
 
-const sourceSerif = Source_Serif_4({
+const instrumentSerif = Instrument_Serif({
   subsets: ["latin"],
+  weight: "400",
   variable: "--font-serif",
   display: "swap",
 });
@@ -11,13 +12,6 @@ const sourceSerif = Source_Serif_4({
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
-  display: "swap",
-});
-
-const ibmPlexMono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "500", "600"],
-  variable: "--font-mono",
   display: "swap",
 });
 
@@ -34,7 +28,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${sourceSerif.variable} ${inter.variable} ${ibmPlexMono.variable}`}
+      className={`${instrumentSerif.variable} ${inter.variable}`}
     >
       <body className="min-h-screen font-sans bg-bg text-primary antialiased">
         {children}

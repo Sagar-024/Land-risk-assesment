@@ -2,27 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import AnimatedButton from "@/components/AnimatedButton";
-import { Input } from "@/components/ui/input";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Loader2, Plus, Minus } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import type {
-  Report,
-  RedFlag,
-  Severity,
-  ClearCheck,
-  CheckCategory,
-} from "@/lib/report";
+  AssessmentOutput,
+  Finding,
+  PropertyProfile,
+} from "@/lib/assessment";
 import FlipText from "@/components/FlipText";
-import AmbientBackground from "@/components/AmbientBackground";
-import type { Interpretation } from "@/lib/summary/interpret";
 
 const staggerContainer = {
   hidden: { opacity: 0 },
@@ -40,13 +26,12 @@ const slideUpItem = {
   show: { opacity: 1, y: 0, transition: { type: "spring" as const, stiffness: 300, damping: 24 } },
 };
 
-const CATEGORY_LABELS: Record<CheckCategory, string> = {
-  buildability: "Buildability & Zoning",
-  environmental: "Environmental & Water",
-  habitat: "Protected Areas & Habitat",
+const PROFILE_SECTIONS: Record<keyof PropertyProfile, string> = {
+  location: "Location",
   terrain: "Terrain",
-  hazards: "Hazards",
-  access: "Utilities & Access",
+  environment: "Environment",
+  infrastructure: "Infrastructure",
+  parcel: "Parcel",
 };
 
 const USE_CASES = [
@@ -92,8 +77,7 @@ export default function Home() {
   const [intendedUse, setIntendedUse] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [report, setReport] = useState<Report | null>(null);
-  const [interpretations, setInterpretations] = useState<Interpretation[]>([]);
+  const [assessment, setAssessment] = useState<AssessmentOutput | null>(null);
   const [coordinates, setCoordinates] = useState<{
     lat: number;
     lng: number;
@@ -102,26 +86,69 @@ export default function Home() {
 
   useEffect(() => {
     setCurrentDate(new Date().toISOString().split("T")[0]);
+    
+    // Restore state from session storage
+    const savedAddress = sessionStorage.getItem('landRiskAddress');
+    const savedUse = sessionStorage.getItem('landRiskUse');
+    const savedAssessment = sessionStorage.getItem('landRiskAssessment');
+    const savedCoordinates = sessionStorage.getItem('landRiskCoordinates');
+
+    if (savedAddress) setAddress(savedAddress);
+    if (savedUse) setIntendedUse(savedUse);
+    if (savedAssessment) {
+      try { setAssessment(JSON.parse(savedAssessment)); } catch (e) {}
+    }
+    if (savedCoordinates) {
+      try { setCoordinates(JSON.parse(savedCoordinates)); } catch (e) {}
+    }
   }, []);
 
-  async function handleSubmit(e: React.FormEvent) {
-    e.preventDefault();
+  // Save state to session storage whenever it changes
+  useEffect(() => {
+    sessionStorage.setItem('landRiskAddress', address);
+    sessionStorage.setItem('landRiskUse', intendedUse);
+    
+    if (assessment) {
+      sessionStorage.setItem('landRiskAssessment', JSON.stringify(assessment));
+    } else {
+      sessionStorage.removeItem('landRiskAssessment');
+    }
+    
+    if (coordinates) {
+      sessionStorage.setItem('landRiskCoordinates', JSON.stringify(coordinates));
+    } else {
+      sessionStorage.removeItem('landRiskCoordinates');
+    }
+  }, [address, intendedUse, assessment, coordinates]);
+
+  async function handleSubmit(e?: React.FormEvent, overrideAddress?: string, overrideUse?: string) {
+    if (e) e.preventDefault();
+    
+    const finalAddress = overrideAddress || address;
+    const finalUse = overrideUse || intendedUse;
+
+    if (!finalAddress || !finalUse) {
+      setError("Please provide an address and intended use.");
+      return;
+    }
+    
+    if (overrideAddress) setAddress(overrideAddress);
+    if (overrideUse) setIntendedUse(overrideUse);
+
     setLoading(true);
     setError(null);
-    setReport(null);
-    setInterpretations([]);
+    setAssessment(null);
 
     try {
       const res = await fetch("/api/assess", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ address, intendedUse }),
+        body: JSON.stringify({ address: finalAddress, intendedUse: finalUse }),
       });
 
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Request failed");
-      setReport(data.report);
-      setInterpretations(data.interpretations ?? []);
+      setAssessment(data.assessment);
       setCoordinates(data.coordinates);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");
@@ -130,195 +157,161 @@ export default function Home() {
     }
   }
 
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      handleSubmit();
+    }
+  };
+
+  if (assessment) {
+    return (
+      <div className="min-h-screen bg-bg p-4 sm:p-8 flex flex-col items-center overflow-x-hidden">
+        <div className="w-full max-w-4xl flex items-center justify-between mb-8">
+            <h1 className="font-serif text-2xl text-ink font-bold">Land Risk Assessment</h1>
+            <button 
+              onClick={() => { setAssessment(null); setAddress(""); setIntendedUse(""); }}
+              className="text-sm font-sans text-ink-secondary hover:text-ink underline"
+            >
+              Start New Search
+            </button>
+        </div>
+        <div className="relative w-full max-w-4xl bg-surface shadow-sm rounded-sm">
+          <div className="absolute bottom-6 left-6 sm:bottom-12 sm:left-12 z-40 pointer-events-none -rotate-[12deg] opacity-90 mix-blend-multiply flex items-center justify-center rounded-full border-[4px] border-critical text-critical w-28 h-28 sm:w-32 sm:h-32">
+            <div className="w-[86%] h-[86%] border-[3px] border-critical rounded-full flex flex-col items-center justify-center gap-0.5 px-2">
+              <span className="font-serif font-bold italic text-[11px] sm:text-xs tracking-[0.12em] leading-tight text-center">
+                Data
+                <br />
+                Verified
+              </span>
+              <span className="font-sans font-bold text-[6px] sm:text-[7px] tracking-widest mt-1 text-center leading-tight">
+                USGS · FEMA<br />USFWS
+              </span>
+            </div>
+          </div>
+          <div className="absolute inset-0 z-50 pointer-events-none opacity-[0.03] mix-blend-multiply rounded-sm overflow-hidden">
+            <svg className="w-full h-full">
+              <filter id="noise">
+                <feTurbulence type="fractalNoise" baseFrequency="0.8" numOctaves="4" stitchTiles="stitch" />
+              </filter>
+              <rect width="100%" height="100%" filter="url(#noise)" />
+            </svg>
+          </div>
+          <div className="relative z-10 p-6 sm:p-10 m-4 sm:m-10 rounded-sm">
+             <ReportDisplay
+                 assessment={assessment}
+                 address={address}
+                 intendedUse={intendedUse}
+                 coordinates={coordinates}
+               />
+          </div>
+          <p className="pb-6 pr-6 sm:pr-10 text-right font-sans text-[10px] font-bold text-ink-secondary uppercase tracking-widest relative z-10">
+            Data sourced via Mireye API • USGS • FEMA • USFWS
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div
-      className="min-h-screen w-full relative overflow-x-hidden"
+      className="min-h-screen w-full relative overflow-x-hidden text-black flex flex-col items-center"
       style={{
         backgroundImage: "url('/00da0bded3a5dc65122837ae947e3dc0.png')",
+        backgroundColor: "#ede7d9",
         backgroundSize: "cover",
         backgroundPosition: "center center",
         backgroundRepeat: "no-repeat",
         backgroundAttachment: "fixed",
       }}
     >
-      <AmbientBackground />
-      <div className="relative z-10 p-4 sm:p-8 flex items-start justify-center min-h-screen">
-      <div className="relative w-full max-w-4xl mt-8 mb-16 bg-surface shadow-sm rounded-sm">
-        {report && (
-          <div className="absolute top-6 right-6 sm:top-14 sm:right-14 z-40 pointer-events-none rotate-[12deg] opacity-90 mix-blend-multiply flex items-center justify-center rounded-full border-[4px] border-critical text-critical w-28 h-28 sm:w-32 sm:h-32">
-            <div className="w-[86%] h-[86%] border-[3px] border-critical rounded-full flex flex-col items-center justify-center gap-0.5 px-2">
-              <span className="font-serif font-bold italic text-[11px] sm:text-xs tracking-[0.12em] leading-tight text-center">
-                Evidence
-                <br />
-                Verified
-              </span>
-              <span className="font-mono font-bold text-[6px] sm:text-[7px] tracking-widest mt-1 text-center leading-tight">
-                USGS · FEMA<br />USFWS
-              </span>
+      <section className="relative z-10 flex w-full max-w-[826px] flex-col items-center justify-center gap-5 text-center sm:gap-6 mt-16 sm:mt-24 px-4 pb-20">
+        <h1 className="text-black text-center font-serif" style={{ fontSize: "clamp(44px, 13vw, 70px)", lineHeight: 1.1, letterSpacing: "clamp(-2.4px, -0.34vw, -1.1px)", margin: 0 }}>
+          <span className="block">
+            <FlipText duration={6} delay={0.2} loop={true} together={false}>
+              Assess Land Risk
+            </FlipText>
+          </span>
+        </h1>
+
+        <div className="relative mt-2 sm:mt-4 flex w-full min-w-0 flex-col justify-between overflow-visible rounded-[8px] border border-black/20 bg-white/90 text-slate-700 shadow-[0_18px_50px_rgba(0,0,0,0.14)] backdrop-blur min-h-[98px] max-w-[640px] sm:min-h-[106px]">
+          <textarea
+            aria-label="Address"
+            className="font-sans h-[66px] max-h-[300px] w-full resize-none overflow-y-auto bg-transparent p-3.5 text-[14.5px] outline-none placeholder:text-slate-500 sm:h-[74px] sm:p-4 sm:text-[16px]"
+            placeholder="Enter a US property address..."
+            value={address}
+            onChange={(e) => setAddress(e.target.value)}
+            onKeyDown={handleKeyDown}
+          ></textarea>
+
+          <div className="flex items-center justify-between gap-2 px-2.5 pb-2.5 sm:px-3 sm:pb-3">
+            <div className="flex min-w-0 items-center gap-1.5">
+              <select
+                 className="font-sans flex h-8 max-w-[220px] cursor-pointer items-center gap-1.5 rounded-lg px-2 text-[12.5px] font-medium transition-colors sm:text-[13px] text-slate-600 bg-transparent hover:bg-slate-100 outline-none"
+                 value={intendedUse}
+                 onChange={(e) => setIntendedUse(e.target.value)}
+              >
+                 <option value="" disabled>Select Intended Use</option>
+                 {USE_CASES.map(uc => <option key={uc.value} value={uc.value}>{uc.label}</option>)}
+              </select>
             </div>
+            <button
+              type="button"
+              onClick={() => handleSubmit()}
+              disabled={loading || !address || !intendedUse}
+              aria-label="Submit"
+              className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-full border border-sky-400 bg-white text-sky-500 transition hover:bg-sky-50 active:scale-95 disabled:opacity-60 sm:h-9 sm:w-9"
+            >
+              {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : (
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-arrow-up h-4 w-4" aria-hidden="true">
+                  <path d="m5 12 7-7 7 7"></path>
+                  <path d="M12 19V5"></path>
+                </svg>
+              )}
+            </button>
+          </div>
+        </div>
+
+        {error && (
+          <div className="mt-2 text-sm text-red-300 font-sans font-medium bg-red-900/40 px-4 py-2 rounded-md">
+            {error}
           </div>
         )}
 
-        <div className="absolute inset-0 z-50 pointer-events-none opacity-[0.03] mix-blend-multiply rounded-sm overflow-hidden">
-          <svg className="w-full h-full">
-            <filter id="noise">
-              <feTurbulence
-                type="fractalNoise"
-                baseFrequency="0.8"
-                numOctaves="4"
-                stitchTiles="stitch"
-              />
-            </filter>
-            <rect width="100%" height="100%" filter="url(#noise)" />
-          </svg>
+        <div className="mt-6 flex flex-wrap justify-center gap-2 max-w-[640px]">
+          {TEST_ADDRESSES.map((test, i) => (
+             <button
+               key={i}
+               type="button"
+               onClick={() => {
+                 handleSubmit(undefined, test.address, test.intendedUse);
+               }}
+               className="px-3 py-1.5 bg-black/5 hover:bg-black/10 border border-black/10 rounded-full text-xs font-sans text-black transition-colors whitespace-nowrap backdrop-blur-sm"
+             >
+               {test.label}
+             </button>
+          ))}
         </div>
-
-        <div className="relative z-10 p-6 sm:p-10 m-4 sm:m-10 rounded-sm">
-          <div className="border-2 border-ink/20 flex flex-col rounded-sm overflow-visible relative bg-surface">
-            <div className="p-6 bg-bg/60 text-center border-b-2 border-ink/20">
-              <h1 className="font-serif text-3xl sm:text-4xl tracking-tight text-ink uppercase">
-                <FlipText>Land Risk Assessment</FlipText>
-              </h1>
-              <p className="mt-2 font-mono text-[10px] text-ink-secondary tracking-widest uppercase font-bold">
-                Official Hazard & Zoning Record
-              </p>
-            </div>
-            <div className="p-6">
-              <form
-                onSubmit={handleSubmit}
-                className="flex flex-col sm:flex-row items-end gap-4"
-              >
-                <div className="w-full space-y-1.5">
-                  <label
-                    htmlFor="address"
-                    className="text-[10px] font-sans text-ink uppercase tracking-wider font-bold"
-                  >
-                    Property Address
-                  </label>
-                  <Input
-                    id="address"
-                    placeholder="Enter a US address"
-                    value={address}
-                    onChange={(e) => setAddress(e.target.value)}
-                    className="h-11 sm:h-10 rounded-sm border-2 border-ink/30 bg-bg text-ink font-mono text-sm placeholder:text-ink-secondary/50 placeholder:font-sans focus-visible:ring-0 focus-visible:border-ink"
-                    required
-                  />
-                </div>
-                <div className="w-full sm:w-64 space-y-1.5">
-                  <label
-                    htmlFor="use"
-                    className="text-[10px] font-sans text-ink uppercase tracking-wider font-bold"
-                  >
-                    Intended Use
-                  </label>
-                  <Select
-                    value={intendedUse}
-                    onValueChange={(v) => v && setIntendedUse(v)}
-                    required
-                  >
-                    <SelectTrigger
-                      id="use"
-                      className="h-11 sm:h-10 rounded-sm border-2 border-ink/30 bg-bg text-ink font-mono text-sm focus:ring-0 focus:border-ink"
-                    >
-                      <SelectValue placeholder="Select" />
-                    </SelectTrigger>
-                    <SelectContent className="rounded-sm border-2 border-ink bg-surface">
-                      {USE_CASES.map((uc) => (
-                        <SelectItem
-                          key={uc.value}
-                          value={uc.value}
-                          className="text-ink font-mono text-sm focus:bg-bg"
-                        >
-                          {uc.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button
-                  type="submit"
-                  disabled={loading}
-                  className="h-11 sm:h-10 w-full sm:w-auto px-8 rounded-sm border-2 border-ink bg-ink text-bg font-sans font-bold uppercase tracking-wider text-xs hover:bg-ink/90 transition-none disabled:opacity-50"
-                >
-                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  {loading ? "Assessing" : "Run Assessment"}
-                </Button>
-              </form>
-
-              <div className="mt-6 flex flex-wrap gap-2 items-center">
-                <span className="text-[10px] font-mono font-bold uppercase text-ink-secondary tracking-widest mr-2">
-                  Quick Tests:
-                </span>
-                {TEST_ADDRESSES.map((test, i) => (
-                  <button
-                    key={i}
-                    type="button"
-                    onClick={() => {
-                      setAddress(test.address);
-                      setIntendedUse(test.intendedUse);
-                    }}
-                    className="px-2 py-1 bg-ink/5 border border-ink/10 rounded-sm text-[10px] font-sans font-bold text-ink hover:bg-ink/10 hover:border-ink/20 transition-colors uppercase tracking-wider"
-                  >
-                    {test.label}
-                  </button>
-                ))}
-              </div>
-              {error && (
-                <div className="mt-4 rounded-sm border-2 border-critical bg-critical/10 px-4 py-3 text-sm text-critical font-mono font-bold">
-                  ERROR: {error}
-                </div>
-              )}
-            </div>
-          </div>
-
-          {report && (
-            <ReportDisplay
-              report={report}
-              address={address}
-              intendedUse={intendedUse}
-              coordinates={coordinates}
-              interpretations={interpretations}
-            />
-          )}
-        </div>
-
-        <p className="pb-6 pr-6 sm:pr-10 text-right font-mono text-[10px] font-bold text-ink-secondary uppercase tracking-widest relative z-10">
-          Data sourced via Mireye API • USGS • FEMA • USFWS
-        </p>
-      </div>
-    </div>
+      </section>
     </div>
   );
 }
 
 function ReportDisplay({
-  report,
+  assessment,
   address,
   intendedUse,
   coordinates,
-  interpretations,
 }: {
-  report: Report;
+  assessment: AssessmentOutput;
   address: string;
   intendedUse: string;
   coordinates: { lat: number; lng: number } | null;
-  interpretations: Interpretation[];
 }) {
-  const { redFlags, clearChecks, notCovered, summary } = report;
-
-  const groupedChecks = clearChecks.reduce(
-    (acc, check) => {
-      if (!acc[check.category]) acc[check.category] = [];
-      acc[check.category].push(check);
-      return acc;
-    },
-    {} as Record<CheckCategory, ClearCheck[]>,
-  );
-
-  const flagCategories = new Set(redFlags.map((f) => f.category));
+  const { executive_summary, risky_findings, clear_checks, property_profile, due_diligence } = assessment;
 
   return (
-    <div className="mt-16 space-y-16">
+    <div className="mt-2 space-y-16">
       <div className="space-y-6">
         <div className="border-2 border-ink/20 grid grid-cols-1 md:grid-cols-4 divide-y-2 md:divide-y-0 md:divide-x-2 divide-ink/20 bg-surface rounded-sm overflow-hidden">
           <div className="col-span-2 p-5 flex flex-col justify-between min-h-[120px]">
@@ -334,12 +327,12 @@ function ReportDisplay({
               Coordinates
             </div>
             {coordinates ? (
-              <div className="font-mono text-ink space-y-1 text-sm font-medium">
+              <div className="font-sans text-ink space-y-1 text-sm font-medium">
                 <div>LAT: {coordinates.lat.toFixed(6)}</div>
                 <div>LNG: {coordinates.lng.toFixed(6)}</div>
               </div>
             ) : (
-              <div className="font-mono text-sm text-ink-secondary">N/A</div>
+              <div className="font-sans text-sm text-ink-secondary">N/A</div>
             )}
           </div>
           <div className="col-span-1 relative min-h-[120px]">
@@ -353,140 +346,142 @@ function ReportDisplay({
                 />
               </div>
             ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-bg/80 font-mono text-[10px] text-ink-secondary font-bold uppercase">
+              <div className="absolute inset-0 flex items-center justify-center bg-bg/80 font-sans text-[10px] text-ink-secondary font-bold uppercase">
                 Map Unavailable
               </div>
             )}
           </div>
         </div>
 
-        <motion.div
-          variants={staggerContainer}
-          initial="hidden"
-          whileInView="show"
-          viewport={{ once: true, amount: 0.4 }}
-          className="flex flex-wrap border-2 border-ink/20 bg-ink/5 rounded-sm overflow-hidden divide-y-2 md:divide-y-0 md:divide-x-2 divide-ink/20"
-        >
-          <motion.div variants={slideUpItem} className="flex-1 bg-surface px-5 py-4 flex flex-col justify-center min-w-[120px]">
-            <span className="font-sans text-[10px] font-bold uppercase tracking-wider text-ink-secondary mb-1">
-              Total Checks
-            </span>
-            <span className="font-mono text-3xl text-ink font-bold">
-              {summary.totalChecks}
-            </span>
-          </motion.div>
-          <motion.div variants={slideUpItem} className="flex-1 bg-surface px-5 py-4 flex flex-col justify-center min-w-[120px]">
-            <span className="font-sans text-[10px] font-bold uppercase tracking-wider text-ink-secondary mb-1">
-              Critical
-            </span>
-            <span
-              className={`font-mono text-3xl font-bold ${summary.flagsBySeverity.critical > 0 ? "text-critical" : "text-ink"}`}
-            >
-              {summary.flagsBySeverity.critical}
-            </span>
-          </motion.div>
-          <motion.div variants={slideUpItem} className="flex-1 bg-surface px-5 py-4 flex flex-col justify-center min-w-[120px]">
-            <span className="font-sans text-[10px] font-bold uppercase tracking-wider text-ink-secondary mb-1">
-              High
-            </span>
-            <span
-              className={`font-mono text-3xl font-bold ${summary.flagsBySeverity.high > 0 ? "text-high" : "text-ink"}`}
-            >
-              {summary.flagsBySeverity.high}
-            </span>
-          </motion.div>
-          <motion.div variants={slideUpItem} className="flex-1 bg-surface px-5 py-4 flex flex-col justify-center min-w-[120px]">
-            <span className="font-sans text-[10px] font-bold uppercase tracking-wider text-ink-secondary mb-1">
-              Clear
-            </span>
-            <span className="font-mono text-3xl text-clear font-bold">
-              {summary.clearCount}
-            </span>
-          </motion.div>
-        </motion.div>
+        <div className="mb-6">
+          <h2 className="font-serif text-xl sm:text-2xl font-bold text-ink mb-4">
+            Executive Summary
+          </h2>
+          <div className="font-sans text-sm text-ink leading-relaxed space-y-3 whitespace-pre-line text-justify">
+            {executive_summary}
+          </div>
+        </div>
       </div>
 
-      {/* IN PLAIN TERMS — presentation layer only, runs after report is built */}
-      {interpretations.length > 0 && (
+      {risky_findings.length > 0 && (
         <section>
-          <div className="mb-4 border-b-2 border-ink/20 pb-3">
-            <h2 className="font-serif text-2xl font-bold text-ink">
-              What These Findings Mean
-            </h2>
-            <p className="mt-1 font-mono text-[10px] text-ink-secondary uppercase tracking-widest font-bold">
-              For {USE_LABELS[intendedUse] ?? intendedUse} use
-            </p>
-          </div>
-          <motion.ol
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.3 }}
-            className="space-y-3"
-          >
-            {interpretations.map((item, i) => (
-              <InPlainTermsItem key={i} item={item} index={i} />
-            ))}
-          </motion.ol>
-          <div className="mt-5 pt-3 border-t border-ink/10">
-            <a
-              href="#evidence-report"
-              onClick={(e) => {
-                e.preventDefault();
-                document
-                  .getElementById("evidence-report")
-                  ?.scrollIntoView({ behavior: "smooth", block: "start" });
-              }}
-              className="font-mono text-[11px] font-bold uppercase tracking-widest text-ink-secondary hover:text-ink transition-colors cursor-pointer"
-            >
-              See full evidence report ↓
-            </a>
-          </div>
-        </section>
-      )}
-
-      {redFlags.length > 0 && (
-        <section id="evidence-report">
-          <div className="mb-4">
+          <div className="mb-6 border-b-2 border-ink/20 pb-3">
             <h2 className="font-serif text-2xl font-bold text-ink">
               Flags &amp; Encumbrances
             </h2>
+            <p className="mt-1 font-sans text-[10px] text-ink-secondary uppercase tracking-widest font-bold">
+              For {USE_LABELS[intendedUse] ?? intendedUse} use
+            </p>
           </div>
           <motion.div
             variants={staggerContainer}
             initial="hidden"
             whileInView="show"
             viewport={{ once: true, amount: 0.2 }}
-            className="space-y-4"
+            className="space-y-8"
           >
-            {redFlags.map((flag, i) => (
-              <RedFlagCard key={i} flag={flag} />
+            {risky_findings.map((finding, i) => (
+              <FindingCard key={i} finding={finding} index={i} />
             ))}
           </motion.div>
         </section>
       )}
 
-      {clearChecks.length > 0 && (
-        <section id={redFlags.length === 0 ? "evidence-report" : undefined}>
+      {clear_checks.length > 0 && (
+        <section>
           <div className="mb-4">
             <h2 className="font-serif text-2xl font-bold text-ink">
               Clear Checks
             </h2>
           </div>
-          <div className="border-2 border-ink/20 bg-bg/30 rounded-sm">
-            {(
-              Object.entries(groupedChecks) as [CheckCategory, ClearCheck[]][]
-            ).map(([category, checks]) => (
-              <CollapsibleCategory
-                key={category}
-                category={category}
-                checks={checks}
-                defaultOpen={flagCategories.has(category)}
-              />
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.3 }}
+            className="grid grid-cols-1 sm:grid-cols-2 gap-3"
+          >
+            {clear_checks.map((check, i) => (
+              <motion.div
+                key={i}
+                variants={slideUpItem}
+                className="flex items-start gap-2 bg-bg/40 border border-ink/10 rounded-sm px-4 py-3"
+              >
+                <span className="mt-0.5 h-2 w-2 shrink-0 bg-clear rounded-full" />
+                <span className="font-sans text-sm text-ink font-medium">
+                  {check}
+                </span>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </section>
       )}
+
+      <section>
+        <div className="mb-4">
+          <h2 className="font-serif text-2xl font-bold text-ink">
+            Property Profile
+          </h2>
+        </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 border-2 border-ink/20 bg-bg/30 rounded-sm p-6 sm:p-10">
+          {(Object.entries(PROFILE_SECTIONS) as [keyof PropertyProfile, string][]).map(([key, label]) => {
+            const items = property_profile[key];
+            if (!items || items.length === 0) return null;
+            return (
+              <div key={key}>
+                <h3 className="font-sans text-[10px] uppercase tracking-widest text-ink-secondary font-bold mb-3">
+                  {label}
+                </h3>
+                <div className="space-y-2">
+                  {items.map((item, i) => (
+                    <p key={i} className="font-sans text-sm text-ink leading-relaxed text-justify">
+                      {item}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </section>
+
+      <section>
+        <div className="mb-4">
+          <h2 className="font-serif text-2xl font-bold text-ink">
+            Recommended Due Diligence
+          </h2>
+        </div>
+        <div className="bg-bg/40 border-2 border-ink/20 rounded-sm p-5">
+          {due_diligence.length > 0 ? (
+            <motion.ol
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.3 }}
+              className="space-y-4"
+            >
+              {due_diligence.map((item, i) => (
+                <motion.li
+                  key={i}
+                  variants={slideUpItem}
+                  className="flex items-start gap-3"
+                >
+                  <span className="font-sans text-[10px] font-bold text-ink-secondary shrink-0 mt-0.5 w-5">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="font-sans text-sm text-ink leading-relaxed">
+                    {item}
+                  </span>
+                </motion.li>
+              ))}
+            </motion.ol>
+          ) : (
+            <p className="font-sans text-sm text-ink-secondary italic">
+              No specific due diligence items identified for this property.
+            </p>
+          )}
+        </div>
+      </section>
 
       <section>
         <div className="mb-4">
@@ -495,11 +490,20 @@ function ReportDisplay({
           </h2>
         </div>
         <p className="mb-4 text-xs font-sans text-ink-secondary font-medium">
-          The following standard title and physical survey elements are excluded
-          from this report and must be verified by a qualified professional:
+          This report is based on geospatial data only and does not cover the
+          following, which must be verified by qualified professionals:
         </p>
         <ul className="grid grid-cols-1 gap-y-2 sm:grid-cols-2">
-          {notCovered.map((item, i) => (
+          {[
+            "Title ownership & chain of title",
+            "Liens, encumbrances, judgments",
+            "HOA / POA covenants, fees, restrictions",
+            "Mineral rights, water rights, timber rights",
+            "Septic / well permitting & feasibility",
+            "Local building codes & permit requirements",
+            "Survey boundaries & encroachments",
+            "Insurance availability & cost",
+          ].map((item, i) => (
             <li
               key={i}
               className="flex items-start gap-2 text-xs font-sans text-ink font-medium"
@@ -514,154 +518,51 @@ function ReportDisplay({
   );
 }
 
-function CollapsibleCategory({
-  category,
-  checks,
-  defaultOpen,
-}: {
-  category: CheckCategory;
-  checks: ClearCheck[];
-  defaultOpen: boolean;
-}) {
-  const [isOpen, setIsOpen] = useState(defaultOpen);
-
+function FindingCard({ finding, index }: { finding: Finding; index: number }) {
   return (
-    <div className="group">
-      <button
-        type="button"
-        onClick={() => setIsOpen(!isOpen)}
-        className="flex w-full items-center justify-between px-5 py-3 text-left hover:bg-ink/5 transition-none"
-      >
-        <span className="font-sans font-bold text-ink tracking-wide text-sm">
-          {CATEGORY_LABELS[category]}
+    <motion.div
+      variants={slideUpItem}
+      className="border-b-2 border-ink/20 pb-6 last:border-b-0"
+    >
+      <div className="flex items-start gap-4">
+        <span className="font-sans text-[10px] font-bold text-ink-secondary shrink-0 mt-1 w-5">
+          {String(index + 1).padStart(2, "0")}
         </span>
-        <div className="flex items-center gap-3">
-          <span className="font-mono text-[10px] text-ink-secondary font-bold">
-            {checks.length} RECORDS
-          </span>
-          {isOpen ? (
-            <Minus className="h-3 w-3 text-ink-secondary" />
-          ) : (
-            <Plus className="h-3 w-3 text-ink-secondary" />
+        <div className="flex-1 space-y-3">
+          <h3 className="font-serif text-xl sm:text-2xl font-bold text-ink leading-tight">
+            {finding.title}
+          </h3>
+
+          <div>
+            <span className="font-sans text-[10px] uppercase tracking-widest text-ink-secondary font-bold">
+              Why It Matters
+            </span>
+            <p className="font-sans text-sm text-ink leading-relaxed mt-1 text-justify">
+              {finding.why_it_matters}
+            </p>
+          </div>
+
+          <div>
+            <span className="font-sans text-[10px] uppercase tracking-widest text-ink-secondary font-bold">
+              Recommended Action
+            </span>
+            <p className="font-sans text-sm text-ink font-medium leading-relaxed mt-1 text-justify">
+              {finding.recommended_action}
+            </p>
+          </div>
+
+          {finding.supporting_details && (
+            <div>
+              <span className="font-sans text-[10px] uppercase tracking-widest text-ink-secondary font-bold">
+                Supporting Details
+              </span>
+              <p className="font-sans text-xs text-ink-secondary leading-relaxed mt-1 text-justify">
+                {finding.supporting_details}
+              </p>
+            </div>
           )}
         </div>
-      </button>
-      {isOpen && (
-        <div className="grid grid-cols-1 gap-y-1 bg-bg/50 py-2">
-          {checks.map((check, i) => (
-            <div
-              key={i}
-              className="flex flex-col sm:flex-row sm:items-start sm:justify-between px-5 py-1.5 hover:bg-surface/50"
-            >
-              <span className="font-sans text-xs text-ink-secondary w-full sm:w-1/2 pr-4 font-bold">
-                {check.label}
-              </span>
-              <span className="font-mono text-xs text-ink font-bold w-full sm:w-1/2 text-left sm:text-right">
-                {check.value}
-              </span>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function RedFlagCard({ flag }: { flag: RedFlag }) {
-  const isCritical = flag.severity === "critical";
-  const hideEvidence = flag.evidence === "Yes" || flag.evidence === "No";
-
-  return (
-    <motion.div variants={slideUpItem} className="flex flex-col gap-1 pb-5 border-b-2 border-ink/20 last:border-b-0">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <span
-            className={`w-2 h-2 rounded-full animate-blink ${isCritical ? "bg-critical" : "bg-high"}`}
-          ></span>
-          <span
-            className={`text-[10px] font-mono uppercase tracking-widest font-bold ${isCritical ? "text-critical" : "text-high"}`}
-          >
-            {flag.severity} RISK
-          </span>
-        </div>
-        <span className="font-mono text-[10px] text-ink-secondary uppercase tracking-widest text-right font-bold">
-          SOURCE: {flag.sourceCitation}
-        </span>
       </div>
-      <p className="font-serif text-xl sm:text-2xl font-bold text-ink leading-tight">
-        {flag.title}
-      </p>
-      {!hideEvidence && (
-        <div className="flex flex-col sm:flex-row sm:items-baseline gap-1.5 mt-1">
-          <span className="font-sans text-[10px] uppercase tracking-wider text-ink-secondary font-bold">
-            Measured Value:
-          </span>
-          <span className="font-mono text-sm text-ink font-bold">
-            {flag.evidence}
-          </span>
-        </div>
-      )}
     </motion.div>
-  );
-}
-
-/**
- * InPlainTermsItem
- *
- * Renders one interpretation entry using the existing design system.
- * Uses existing severity color tokens (text-critical, text-high, text-ink-secondary).
- * No new visual language, no new components, no new colors.
- */
-function InPlainTermsItem({
-  item,
-  index,
-}: {
-  item: Interpretation;
-  index: number;
-}) {
-  const isZeroFlags = item.sourceField === "__zero_flags__";
-
-  const severityColor = isZeroFlags
-    ? "text-clear"
-    : item.severity === "critical"
-      ? "text-critical"
-      : item.severity === "high"
-        ? "text-high"
-        : "text-ink-secondary";
-
-  const dotColor = isZeroFlags
-    ? "bg-clear"
-    : item.severity === "critical"
-      ? "bg-critical"
-      : item.severity === "high"
-        ? "bg-high"
-        : "bg-ink-secondary";
-
-  const label = isZeroFlags
-    ? "clear"
-    : item.severity;
-
-  return (
-    <motion.li variants={slideUpItem} className="flex gap-3 items-start py-3 border-b border-ink/10 last:border-b-0">
-      {/* Index number in mono, existing design pattern */}
-      <span className="font-mono text-[10px] font-bold text-ink-secondary shrink-0 mt-[3px] w-4 text-right">
-        {String(index + 1).padStart(2, "0")}
-      </span>
-
-      <div className="flex-1 space-y-1">
-        {/* Severity badge */}
-        <div className="flex items-center gap-1.5 mb-1">
-          <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${dotColor}`} />
-          <span className={`font-mono text-[9px] uppercase tracking-widest font-bold ${severityColor}`}>
-            {label}
-          </span>
-        </div>
-
-        {/* The plain-language sentence */}
-        <p className="font-sans text-sm text-ink leading-relaxed">
-          {item.sentence}
-        </p>
-      </div>
-    </motion.li>
   );
 }

@@ -1,0 +1,2308 @@
+[
+  {
+    "field_name": "elevation",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "slope_degrees",
+    "category": "Terrain",
+    "data_type": "float",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "gt",
+          "value": 15
+        },
+        "severity": "Risky",
+        "reason": "Steep grade. Requires specialized foundations, retaining walls, and elevates landslide risk.",
+        "citation": "IBC Section 1808 (Foundations on Steep Slopes).",
+        "source": "USGS 3DEP",
+        "source_url": "https://www.usgs.gov/3d-elevation-program"
+      },
+      {
+        "condition": {
+          "operator": "lte",
+          "value": 15
+        },
+        "severity": "Clear",
+        "reason": "Flat or gentle slope; generally ideal for conventional construction.",
+        "citation": "Standard architectural thresholds.",
+        "source": "USGS 3DEP",
+        "source_url": "https://www.usgs.gov/3d-elevation-program"
+      }
+    ]
+  },
+  {
+    "field_name": "coast_distance_m",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "soil_drainage_class",
+    "category": "Terrain",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "in",
+          "value": [
+            "Very poorly drained",
+            "Poorly drained",
+            "Somewhat poorly drained"
+          ]
+        },
+        "severity": "Risky",
+        "reason": "High water table or impermeable soils; challenging for septic systems and foundations.",
+        "citation": "USDA NRCS Soil Survey Manual.",
+        "source": "USDA SSURGO",
+        "source_url": "https://websoilsurvey.nrcs.usda.gov/"
+      },
+      {
+        "condition": {
+          "operator": "in",
+          "value": [
+            "Well drained",
+            "Moderately well drained",
+            "Excessively drained"
+          ]
+        },
+        "severity": "Clear",
+        "reason": "Generally favorable for drainage and conventional septic.",
+        "citation": "USDA NRCS Soil Survey Manual.",
+        "source": "USDA SSURGO",
+        "source_url": "https://websoilsurvey.nrcs.usda.gov/"
+      }
+    ]
+  },
+  {
+    "field_name": "bedrock_depth_cm",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_flowline_name",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_waterbody_name",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "within_floodplain_polygon",
+    "category": "Hazards",
+    "data_type": "boolean",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "eq",
+          "value": true
+        },
+        "severity": "Risky",
+        "reason": "Inside FEMA Special Flood Hazard Area (SFHA).",
+        "citation": "FEMA NFHL Guidelines (1% Annual Chance Flood).",
+        "source": "FEMA NFHL",
+        "source_url": "https://hazards.fema.gov"
+      },
+      {
+        "condition": {
+          "operator": "eq",
+          "value": false
+        },
+        "severity": "Clear",
+        "reason": "Outside FEMA SFHA.",
+        "citation": "FEMA NFHL Guidelines.",
+        "source": "FEMA NFHL",
+        "source_url": "https://hazards.fema.gov"
+      }
+    ]
+  },
+  {
+    "field_name": "intersects_wetland",
+    "category": "Environmental",
+    "data_type": "boolean",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "eq",
+          "value": true
+        },
+        "severity": "Risky",
+        "reason": "Biological wetland present. Development may require USACE §404 permitting and mitigation.",
+        "citation": "Clean Water Act §404 / USFWS NWI.",
+        "source": "USFWS NWI",
+        "source_url": "https://www.fws.gov/program/national-wetlands-inventory"
+      },
+      {
+        "condition": {
+          "operator": "eq",
+          "value": false
+        },
+        "severity": "Clear",
+        "reason": "No mapped wetland on parcel.",
+        "citation": "USFWS NWI.",
+        "source": "USFWS NWI",
+        "source_url": "https://www.fws.gov/program/national-wetlands-inventory"
+      }
+    ]
+  },
+  {
+    "field_name": "wetland_type",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_wetland_distance_m",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "wetlands_within_100m_count",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "surface_water_permanence_pct",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "lcms_class",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "land_use_class",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "tree_canopy_pct",
+    "category": "Terrain",
+    "data_type": "float",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "gt",
+          "value": 60
+        },
+        "severity": "Informational",
+        "reason": "Dense forest canopy present; major wildfire fuel + clearing required for construction.",
+        "citation": "USFS NLCD Canopy Cover.",
+        "source": "USFS NLCD",
+        "source_url": "https://www.mrlc.gov/"
+      }
+    ]
+  },
+  {
+    "field_name": "ndvi_change_5y",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "cdl_class",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "is_cultivated",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "dominant_crop_5y",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "primary_building_height_m",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "primary_building_overture_class",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_major_road_name",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_major_road_distance_m",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_power_plant_distance_m",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_transmission_line_distance_m",
+    "category": "Utilities",
+    "data_type": "float",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "lt",
+          "value": 100
+        },
+        "severity": "Risky",
+        "reason": "Close proximity to high-voltage transmission; potential easement/ROW encumbrances and aesthetic concerns.",
+        "citation": "Real Estate Standard Practice.",
+        "source": "EIA ATLAS",
+        "source_url": "https://atlas.eia.gov/"
+      },
+      {
+        "condition": {
+          "operator": "gte",
+          "value": 100
+        },
+        "severity": "Informational",
+        "reason": "No immediate high-voltage lines encumbering site.",
+        "citation": "Real Estate Standard Practice.",
+        "source": "EIA ATLAS",
+        "source_url": "https://atlas.eia.gov/"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_gas_pipeline_distance_m",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_public_water_system_name",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_airport_distance_m",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "political_county",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "political_locality",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "intersects_conservation_easement",
+    "category": "Environmental",
+    "data_type": "boolean",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "eq",
+          "value": true
+        },
+        "severity": "Risky",
+        "reason": "Parcel is encumbered by a conservation easement, heavily restricting development.",
+        "citation": "National Conservation Easement Database.",
+        "source": "USGS PAD-US",
+        "source_url": "https://www.usgs.gov/programs/gap-analysis-project"
+      },
+      {
+        "condition": {
+          "operator": "eq",
+          "value": false
+        },
+        "severity": "Clear",
+        "reason": "No federal conservation easement recorded.",
+        "citation": "National Conservation Easement Database.",
+        "source": "USGS PAD-US",
+        "source_url": "https://www.usgs.gov/programs/gap-analysis-project"
+      }
+    ]
+  },
+  {
+    "field_name": "intersects_protected_area",
+    "category": "Environmental",
+    "data_type": "boolean",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "eq",
+          "value": true
+        },
+        "severity": "Risky",
+        "reason": "Protected conservation area; significant development restrictions likely.",
+        "citation": "USGS PAD-US Gap Analysis.",
+        "source": "USGS PAD-US",
+        "source_url": "https://www.usgs.gov/programs/gap-analysis-project"
+      },
+      {
+        "condition": {
+          "operator": "eq",
+          "value": false
+        },
+        "severity": "Clear",
+        "reason": "Not within a mapped protected area.",
+        "citation": "USGS PAD-US.",
+        "source": "USGS PAD-US",
+        "source_url": "https://www.usgs.gov/programs/gap-analysis-project"
+      }
+    ]
+  },
+  {
+    "field_name": "protected_area_gap_status",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "intersects_critical_habitat",
+    "category": "Environmental",
+    "data_type": "boolean",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "eq",
+          "value": true
+        },
+        "severity": "Risky",
+        "reason": "ESA Critical Habitat. Federal nexus triggers consultation.",
+        "citation": "Endangered Species Act (ESA).",
+        "source": "USFWS CRITHAB",
+        "source_url": "https://www.fws.gov/project/critical-habitat"
+      },
+      {
+        "condition": {
+          "operator": "eq",
+          "value": false
+        },
+        "severity": "Clear",
+        "reason": "Outside mapped critical habitat.",
+        "citation": "Endangered Species Act (ESA).",
+        "source": "USFWS CRITHAB",
+        "source_url": "https://www.fws.gov/project/critical-habitat"
+      }
+    ]
+  },
+  {
+    "field_name": "critical_habitat_status",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "parcel_geometry_wkt",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "parcel_boundary_geojson",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "parcel_id",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "parcel_area_m2",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "parcel_address",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "parcel_owner",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "parcel_zoning",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "seismic_design_category",
+    "category": "Hazards",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "in",
+          "value": [
+            "C",
+            "D",
+            "E",
+            "F"
+          ]
+        },
+        "severity": "Risky",
+        "reason": "Moderate to extreme seismic risk; requires specific structural detailing.",
+        "citation": "ASCE 7-22 (Minimum Design Loads).",
+        "source": "USGS Seismic Hazard Model",
+        "source_url": "https://www.usgs.gov/programs/earthquake-hazards"
+      },
+      {
+        "condition": {
+          "operator": "in",
+          "value": [
+            "A",
+            "B"
+          ]
+        },
+        "severity": "Clear",
+        "reason": "Low seismic risk.",
+        "citation": "ASCE 7-22 (Minimum Design Loads).",
+        "source": "USGS Seismic Hazard Model",
+        "source_url": "https://www.usgs.gov/programs/earthquake-hazards"
+      }
+    ]
+  },
+  {
+    "field_name": "seismic_pga_2pct_50yr_g",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "design_wind_speed_mph",
+    "category": "Hazards",
+    "data_type": "integer",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "gte",
+          "value": 140
+        },
+        "severity": "Risky",
+        "reason": "Hurricane-prone region; requires strict wind-borne debris protection (impact windows/shutters).",
+        "citation": "ASCE 7-22 Wind-Borne Debris Region (WBDR).",
+        "source": "ASCE / ATC",
+        "source_url": "https://asce7hazardtool.online/"
+      },
+      {
+        "condition": {
+          "operator": "gte",
+          "value": 130
+        },
+        "severity": "Risky",
+        "reason": "Elevated wind design requirements; potential WBDR if near coast.",
+        "citation": "ASCE 7-22.",
+        "source": "ASCE / ATC",
+        "source_url": "https://asce7hazardtool.online/"
+      },
+      {
+        "condition": {
+          "operator": "lt",
+          "value": 130
+        },
+        "severity": "Clear",
+        "reason": "Standard wind design requirements.",
+        "citation": "ASCE 7-22.",
+        "source": "ASCE / ATC",
+        "source_url": "https://asce7hazardtool.online/"
+      }
+    ]
+  },
+  {
+    "field_name": "wildfire_annual_frequency",
+    "category": "Hazards",
+    "data_type": "float",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "gt",
+          "value": 0.01
+        },
+        "severity": "Risky",
+        "reason": "Elevated wildfire hazard; insurance and defensible space implications.",
+        "citation": "USFS Wildfire Hazard Potential (WHP) class mappings.",
+        "source": "USFS WHP",
+        "source_url": "https://www.firelab.org/project/wildfire-hazard-potential"
+      },
+      {
+        "condition": {
+          "operator": "lte",
+          "value": 0.01
+        },
+        "severity": "Clear",
+        "reason": "Low/Moderate wildfire hazard.",
+        "citation": "USFS Wildfire Hazard Potential (WHP).",
+        "source": "USFS WHP",
+        "source_url": "https://www.firelab.org/project/wildfire-hazard-potential"
+      }
+    ]
+  },
+  {
+    "field_name": "tornado_annual_frequency",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "hail_annual_frequency",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "lightning_annual_flash_days",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "landslide_susceptibility_index",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_hazardous_facility_distance_m",
+    "category": "Utilities",
+    "data_type": "float",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "lt",
+          "value": 1500
+        },
+        "severity": "Risky",
+        "reason": "Proximity to hazardous site; warrants Phase I ESA for potential vapor/groundwater concerns.",
+        "citation": "EPA All Appropriate Inquiries (AAI) Rule (ASTM E1527-21).",
+        "source": "EPA FRS",
+        "source_url": "https://www.epa.gov/enviro/facility-registry-service-frs"
+      },
+      {
+        "condition": {
+          "operator": "gte",
+          "value": 1500
+        },
+        "severity": "Informational",
+        "reason": "Generally beyond standard environmental area of concern.",
+        "citation": "EPA AAI Guidelines.",
+        "source": "EPA FRS",
+        "source_url": "https://www.epa.gov/enviro/facility-registry-service-frs"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_groundwater_well_depth_to_water_m",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "fiber_provider_count",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "fiber_broadband_available",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "mobile_5g_coverage_class",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "soil_shrink_swell_class",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "prime_farmland_classification",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "in_air_quality_nonattainment",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_brownfield_distance_m",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_superfund_distance_m",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": true,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "aspect_degrees",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "aspect_cardinal",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "soil_map_unit_name",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "intersects_nhd_area",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "huc_12_name",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "wetland_subtype",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "wetland_acres",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "wetlands_within_500m_count",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "ndvi_current",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "primary_building_num_floors",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "primary_building_footprint_sqm",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_power_plant_name",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_power_plant_primary_fuel",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_transmission_line_voltage_kv",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_transmission_line_voltage_class",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_transmission_line_status",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "max_transmission_line_voltage_kv_within_radius",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "max_transmission_line_voltage_class_within_radius",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_rail_line_distance_m",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_airport_name",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "political_region",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "easement_holder",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "easement_type",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "easement_purpose",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "easement_acres",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "easement_year_established",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "protected_area_name",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "protected_area_designation",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "protected_area_manager",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "protected_area_public_access",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "critical_habitat_species",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "critical_habitat_listing_status",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "parcel_apn",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "mean_annual_dry_bulb_temperature_degc",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "mean_annual_relative_humidity_pct",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "days_above_32c_annual_count",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "mean_annual_snow_cover_days",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_dam_distance_m",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_dam_hazard_potential",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "high_hazard_dams_within_10km",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_hazardous_facility_name",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "electric_utility_service_territory",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "public_water_system_population_served",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_urban_area_distance_m",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "in_shale_play",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_shale_play_name",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "drought_category",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "air_quality_nonattainment_pollutants",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "air_quality_worst_classification",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "brownfields_within_radius_count",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "superfund_sites_within_radius_count",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  },
+  {
+    "field_name": "nearest_gas_pipeline_type",
+    "category": "General",
+    "data_type": "string",
+    "is_direct": false,
+    "rules": [
+      {
+        "condition": {
+          "operator": "neq",
+          "value": null
+        },
+        "severity": "Informational",
+        "reason": "No specific risk thresholds identified for this metric.",
+        "citation": "General Context",
+        "source": "Mireye Field Defaults",
+        "source_url": "https://api.mireye.com/v1/meta/fields"
+      }
+    ]
+  }
+]

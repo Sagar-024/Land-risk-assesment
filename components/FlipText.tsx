@@ -16,7 +16,7 @@ interface FlipTextProps {
 
     /**
      * Duration of the flip animation in seconds
-     * @default 5
+     * @default 2.2
      */
     duration?: number;
 
@@ -48,7 +48,7 @@ interface FlipTextProps {
 export function FlipText({
     className,
     children,
-    duration = 6,
+    duration = 2.2,
     delay = 0,
     loop = true,
     separator = " ",
