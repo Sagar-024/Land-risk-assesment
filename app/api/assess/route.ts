@@ -1,48 +1,27 @@
-import { NextRequest, NextResponse } from "next/server";
-import { geocodeAddress } from "@/lib/geocode";
-import { fetchMireyeFields } from "@/lib/mireye/client";
-import { ALL_RELEVANT_FIELDS } from "@/lib/mireye/fields";
-import { assessLand } from "@/lib/assessment";
+import { NextRequest, NextResponse } from 'next/server';
+import { runPipeline } from '@/lib/pipeline';
+
+export const runtime = 'nodejs';
+export const maxDuration = 300; // fetch + LLM can take 60s+
 
 export async function POST(req: NextRequest) {
-  try {
-    const { address, intendedUse } = await req.json();
+  let body: any;
+  try { body = await req.json(); }
+  catch { return NextResponse.json({ error: 'invalid JSON body' }, { status: 400 }); }
 
-    if (!address || typeof address !== "string") {
-      return NextResponse.json(
-        { error: "address is required" },
-        { status: 400 },
-      );
-    }
+  const address = (body?.address || '').trim();
+  const landUse = (body?.land_use || 'Residential').trim();
 
-    const { lat, lng } = await geocodeAddress(address);
+  if (!address) return NextResponse.json({ error: 'address is required' }, { status: 400 });
+  if (address.length > 500) return NextResponse.json({ error: 'address too long' }, { status: 400 });
 
-    const BATCH_SIZE = 50;
-    const batches: string[][] = [];
-    for (let i = 0; i < ALL_RELEVANT_FIELDS.length; i += BATCH_SIZE) {
-      batches.push(ALL_RELEVANT_FIELDS.slice(i, i + BATCH_SIZE) as string[]);
-    }
-    const results = await Promise.all(
-      batches.map((batch) => fetchMireyeFields(lat, lng, batch)),
-    );
-    const fields: Record<string, unknown> = {};
-    for (const result of results) {
-      Object.assign(fields, result);
-    }
-    const assessment = await assessLand(
-      fields,
-      address,
-      intendedUse ?? "residential",
-    );
+  const result = await runPipeline(address, landUse);
+  return NextResponse.json(result, { status: result.ok ? 200 : 500 });
+}
 
-    return NextResponse.json({
-      address,
-      intendedUse,
-      coordinates: { lat, lng },
-      assessment,
-    });
-  } catch (err) {
-    const message = err instanceof Error ? err.message : "Unknown error";
-    return NextResponse.json({ error: message }, { status: 500 });
-  }
+export async function GET() {
+  return NextResponse.json({
+    name: 'Land Purchase Risk Assessment API v2',
+    endpoints: { POST: { address: 'string (required)', land_use: 'string (optional, default: Residential)' } },
+  });
 }
