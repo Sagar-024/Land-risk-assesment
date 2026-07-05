@@ -469,6 +469,7 @@ async function llmReason(
         ],
         temperature: 0,
         max_tokens: 16384,
+        response_format: { type: 'json_object' },
       }),
     });
     const ms = Date.now() - t0;
@@ -529,6 +530,7 @@ async function llmReasonStream(
       temperature: 0,
       max_tokens: 16384,
       stream: true,
+      response_format: { type: 'json_object' },
     }),
   });
 
