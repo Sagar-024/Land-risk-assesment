@@ -235,7 +235,66 @@ export default function Home() {
             </button>
           </div>
         </div>
-        <div className="relative w-full max-w-4xl bg-surface shadow-sm rounded-sm">
+        <div className="relative w-full max-w-4xl bg-surface">
+          {/* ── Ornate document border — Heraldic Cross style ── */}
+          {/* Triple-line frame: thick outer, gap, thin inner */}
+          <div className="absolute inset-0 border-[3px] border-ink/40 pointer-events-none z-20" />
+          <div className="absolute inset-[5px] border-[1px] border-ink/20 pointer-events-none z-20" />
+          <div className="absolute inset-[9px] border-[1px] border-ink/10 pointer-events-none z-20" />
+
+          {/* Corner ornament — top-left: cross rosette */}
+          <svg className="absolute top-0 left-0 w-20 h-20 text-ink/35 pointer-events-none z-30" viewBox="0 0 80 80" fill="none">
+            {/* outer L arms */}
+            <path d="M2 2 L30 2" stroke="currentColor" strokeWidth="3"/>
+            <path d="M2 2 L2 30" stroke="currentColor" strokeWidth="3"/>
+            {/* inner hairline arms */}
+            <path d="M10 10 L24 10" stroke="currentColor" strokeWidth="0.8"/>
+            <path d="M10 10 L10 24" stroke="currentColor" strokeWidth="0.8"/>
+            {/* cross petals at inner corner */}
+            <path d="M10 4 L10 16 M4 10 L16 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            {/* dot cap at exact corner */}
+            <circle cx="2" cy="2" r="2" fill="currentColor"/>
+            {/* rosette center */}
+            <circle cx="10" cy="10" r="3" fill="currentColor" fillOpacity="0.25"/>
+            <circle cx="10" cy="10" r="1.5" fill="currentColor"/>
+          </svg>
+
+          {/* Corner ornament — top-right */}
+          <svg className="absolute top-0 right-0 w-20 h-20 text-ink/35 pointer-events-none z-30" viewBox="0 0 80 80" fill="none">
+            <path d="M78 2 L50 2" stroke="currentColor" strokeWidth="3"/>
+            <path d="M78 2 L78 30" stroke="currentColor" strokeWidth="3"/>
+            <path d="M70 10 L56 10" stroke="currentColor" strokeWidth="0.8"/>
+            <path d="M70 10 L70 24" stroke="currentColor" strokeWidth="0.8"/>
+            <path d="M70 4 L70 16 M64 10 L76 10" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            <circle cx="78" cy="2" r="2" fill="currentColor"/>
+            <circle cx="70" cy="10" r="3" fill="currentColor" fillOpacity="0.25"/>
+            <circle cx="70" cy="10" r="1.5" fill="currentColor"/>
+          </svg>
+
+          {/* Corner ornament — bottom-left */}
+          <svg className="absolute bottom-0 left-0 w-20 h-20 text-ink/35 pointer-events-none z-30" viewBox="0 0 80 80" fill="none">
+            <path d="M2 78 L30 78" stroke="currentColor" strokeWidth="3"/>
+            <path d="M2 78 L2 50" stroke="currentColor" strokeWidth="3"/>
+            <path d="M10 70 L24 70" stroke="currentColor" strokeWidth="0.8"/>
+            <path d="M10 70 L10 56" stroke="currentColor" strokeWidth="0.8"/>
+            <path d="M10 64 L10 76 M4 70 L16 70" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            <circle cx="2" cy="78" r="2" fill="currentColor"/>
+            <circle cx="10" cy="70" r="3" fill="currentColor" fillOpacity="0.25"/>
+            <circle cx="10" cy="70" r="1.5" fill="currentColor"/>
+          </svg>
+
+          {/* Corner ornament — bottom-right */}
+          <svg className="absolute bottom-0 right-0 w-20 h-20 text-ink/35 pointer-events-none z-30" viewBox="0 0 80 80" fill="none">
+            <path d="M78 78 L50 78" stroke="currentColor" strokeWidth="3"/>
+            <path d="M78 78 L78 50" stroke="currentColor" strokeWidth="3"/>
+            <path d="M70 70 L56 70" stroke="currentColor" strokeWidth="0.8"/>
+            <path d="M70 70 L70 56" stroke="currentColor" strokeWidth="0.8"/>
+            <path d="M70 64 L70 76 M64 70 L76 70" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+            <circle cx="78" cy="78" r="2" fill="currentColor"/>
+            <circle cx="70" cy="70" r="3" fill="currentColor" fillOpacity="0.25"/>
+            <circle cx="70" cy="70" r="1.5" fill="currentColor"/>
+          </svg>
+
           {/* Data Verified stamp */}
           <div className="absolute bottom-6 left-6 sm:bottom-12 sm:left-12 z-40 pointer-events-none -rotate-[12deg] opacity-90 mix-blend-multiply flex items-center justify-center rounded-full border-[4px] border-critical text-critical w-28 h-28 sm:w-32 sm:h-32">
             <div className="w-[86%] h-[86%] border-[3px] border-critical rounded-full flex flex-col items-center justify-center gap-0.5 px-2">
@@ -266,7 +325,7 @@ export default function Home() {
               coordinates={coordinates}
             />
           </div>
-          <p className="pb-6 pr-6 sm:pr-10 text-right font-sans text-[10px] font-bold text-ink-secondary uppercase tracking-widest relative z-10">
+          <p className="pb-6 pr-6 sm:pr-10 text-right font-sans text-sm font-bold text-ink-secondary uppercase tracking-widest relative z-10">
             Data sourced via Mireye API • USGS • FEMA • USFWS
           </p>
         </div>
@@ -364,6 +423,57 @@ export default function Home() {
   );
 }
 
+// ───────── Verdict Badge ─────────
+const VERDICT_CONFIG: Record<string, { label: string; color: string; border: string; bg: string }> = {
+  proceed: { label: "Proceed", color: "text-clear", border: "border-clear", bg: "bg-clear/10" },
+  proceed_with_caution: { label: "Proceed with Caution", color: "text-amber-700", border: "border-amber-600", bg: "bg-amber-50" },
+  not_recommended: { label: "Not Recommended", color: "text-high", border: "border-high", bg: "bg-high/10" },
+  cannot_proceed: { label: "Cannot Proceed", color: "text-critical", border: "border-critical", bg: "bg-critical/10" },
+};
+
+function VerdictBadge({ verdict, verdict_reason, next_step }: { verdict: string; verdict_reason: string; next_step: string }) {
+  const cfg = VERDICT_CONFIG[verdict] ?? VERDICT_CONFIG.proceed_with_caution;
+  return (
+    <div>
+      <div className="flex items-center gap-3 mb-3">
+        <span className={`font-serif text-2xl sm:text-3xl font-bold ${cfg.color}`}>
+          {cfg.label}
+        </span>
+      </div>
+      <p className="font-sans text-sm text-ink leading-relaxed mb-4">{verdict_reason}</p>
+      <p className="font-sans text-sm text-ink font-medium">
+        <span className="text-ink-secondary font-bold text-sm">Next step: </span>
+        {next_step}
+      </p>
+    </div>
+  );
+}
+
+
+
+// ───────── Decision Factors ─────────
+const IMPACT_COLORS: Record<string, string> = {
+  positive: "border-clear",
+  negative: "border-critical",
+  warning: "border-amber-500",
+};
+
+function DecisionFactors({ factors }: { factors: Array<{ factor: string; impact: string; detail: string }> }) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
+      {factors.map((f, i) => {
+        const borderColor = IMPACT_COLORS[f.impact] ?? "border-ink/10";
+        return (
+          <div key={i} className={`flex flex-col border-[2px] ${borderColor} rounded-sm p-4 bg-bg/30 h-full`}>
+            <span className="font-sans text-base text-ink font-bold block mb-1">{f.factor}</span>
+            <p className="font-sans text-sm text-ink-secondary leading-relaxed mt-auto text-justify">{f.detail}</p>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 // ───────── Report display ─────────
 function ReportDisplay({
   result,
@@ -387,83 +497,89 @@ function ReportDisplay({
   const due_diligence = llm?.recommended_due_diligence ?? [];
   const exclusions = llm?.exclusions_and_limitations ?? [];
 
-  return (
-    <div className="mt-2 space-y-16">
-      {/* ── Header: address + coords + map ── */}
-      <div className="space-y-6">
-        <div className="border-2 border-ink/20 grid grid-cols-1 md:grid-cols-4 divide-y-2 md:divide-y-0 md:divide-x-2 divide-ink/20 bg-surface rounded-sm overflow-hidden">
-          <div className="col-span-2 p-5 flex flex-col justify-between min-h-[120px]">
-            <div className="text-[10px] uppercase tracking-widest text-ink font-bold font-sans mb-2">
-              Subject Property
-            </div>
-            <div className="font-serif text-xl sm:text-2xl text-ink leading-tight">
-              {address}
-            </div>
-          </div>
-          <div className="col-span-1 p-5 flex flex-col justify-between min-h-[120px] bg-bg/80">
-            <div className="text-[10px] uppercase tracking-widest text-ink font-bold font-sans mb-2">
-              Coordinates
-            </div>
-            {coordinates ? (
-              <div className="font-sans text-ink space-y-1 text-sm font-medium">
-                <div>LAT: {coordinates.lat.toFixed(6)}</div>
-                <div>LNG: {coordinates.lng.toFixed(6)}</div>
-              </div>
-            ) : (
-              <div className="font-sans text-sm text-ink-secondary">N/A</div>
-            )}
-          </div>
-          <div className="col-span-1 relative min-h-[120px]">
-            {coordinates ? (
-              <div className="absolute inset-0 overflow-hidden bg-surface">
-                <iframe
-                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${coordinates.lng - 0.01},${coordinates.lat - 0.01},${coordinates.lng + 0.01},${coordinates.lat + 0.01}&layer=mapnik&marker=${coordinates.lat},${coordinates.lng}`}
-                  className="absolute top-0 left-0 w-full h-[calc(100%+32px)] border-0 grayscale-[0.5] mix-blend-multiply opacity-90"
-                  title="Property location map"
-                  loading="lazy"
-                />
-              </div>
-            ) : (
-              <div className="absolute inset-0 flex items-center justify-center bg-bg/80 font-sans text-[10px] text-ink-secondary font-bold uppercase">
-                Map Unavailable
-              </div>
-            )}
-          </div>
-        </div>
+  const [showSecondary, setShowSecondary] = useState(false);
+  const isCannotProceed = llm?.verdict === "cannot_proceed";
 
-        {/* ── Executive Summary ── */}
-        <div className="mb-6">
-          <h2 className="font-serif text-xl sm:text-2xl font-bold text-ink mb-4">
-            Executive Summary
+  const SecondaryFindings = () => (
+    <div className="space-y-16">
+      {/* ── Recommended Due Diligence ── */}
+      <section>
+        <div className="mb-4">
+          <h2 className="font-serif text-2xl font-bold text-ink">
+            Recommended Due Diligence
           </h2>
-          <div className="font-sans text-sm text-ink leading-relaxed space-y-3 whitespace-pre-line text-justify">
-            {llm?.executive_summary ?? "Summary unavailable."}
-          </div>
         </div>
-      </div>
+        <div>
+          {due_diligence.length > 0 ? (
+            <motion.ol
+              variants={staggerContainer}
+              initial="hidden"
+              whileInView="show"
+              viewport={{ once: true, amount: 0.3 }}
+              className="space-y-4"
+            >
+              {due_diligence.map((item, i) => (
+                <motion.li
+                  key={i}
+                  variants={slideUpItem}
+                  className="flex items-start gap-3"
+                >
+                  <span className="font-sans text-sm font-bold text-ink-secondary shrink-0 mt-0.5 w-5">
+                    {String(i + 1).padStart(2, "0")}
+                  </span>
+                  <span className="font-sans text-sm text-ink leading-relaxed">
+                    {item}
+                  </span>
+                </motion.li>
+              ))}
+            </motion.ol>
+          ) : (
+            <p className="font-sans text-sm text-ink-secondary italic">
+              No specific due diligence items identified for this property.
+            </p>
+          )}
+        </div>
+      </section>
 
-      {/* ── Flags & Encumbrances (critical + high) ── */}
-      {flags.length > 0 && (
+      {/* ── Living Here ── */}
+      {llm?.living_here && (
         <section>
-          <div className="mb-6 border-b-2 border-ink/20 pb-3">
+          <div className="mb-4">
             <h2 className="font-serif text-2xl font-bold text-ink">
-              Flags &amp; Encumbrances
+              Living Here
             </h2>
-            <p className="mt-1 font-sans text-[10px] text-ink-secondary uppercase tracking-widest font-bold">
-              For {USE_LABELS[intendedUse] ?? intendedUse} use
+            <p className="mt-1 font-sans text-sm text-ink-secondary uppercase tracking-widest font-bold">
+              What daily life on this property is actually like
             </p>
           </div>
-          <motion.div
-            variants={staggerContainer}
-            initial="hidden"
-            whileInView="show"
-            viewport={{ once: true, amount: 0.2 }}
-            className="space-y-8"
-          >
-            {flags.map((finding, i) => (
-              <FindingCard key={finding.id || i} finding={finding} index={i} manifest={manifest} />
-            ))}
-          </motion.div>
+          <div className="font-sans text-sm text-ink leading-relaxed space-y-3 text-justify">
+            {llm.living_here}
+          </div>
+        </section>
+      )}
+
+      {/* ── Property Details ── */}
+      {profile && (
+        <section>
+          <div className="mb-4">
+            <h2 className="font-serif text-2xl font-bold text-ink">
+              Property Details
+            </h2>
+          </div>
+          <div className="space-y-6">
+            {Object.entries(PROFILE_SECTIONS).map(([key, label]) => {
+              const text = profile[key as keyof typeof profile];
+              if (!text) return null;
+              return (
+                <div key={key}>
+                  <h3 className="font-sans text-sm uppercase tracking-widest text-ink-secondary font-bold mb-2">
+                    {label}
+                  </h3>
+                  <p className="font-sans text-sm text-ink leading-relaxed text-justify">{text}</p>
+                </div>
+              );
+            })}
+          </div>
         </section>
       )}
 
@@ -474,7 +590,7 @@ function ReportDisplay({
             <h2 className="font-serif text-2xl font-bold text-ink">
               Moderate Considerations
             </h2>
-            <p className="mt-1 font-sans text-[10px] text-ink-secondary uppercase tracking-widest font-bold">
+            <p className="mt-1 font-sans text-sm text-ink-secondary uppercase tracking-widest font-bold">
               Worth disclosing — typically manageable
             </p>
           </div>
@@ -511,7 +627,7 @@ function ReportDisplay({
               <motion.div
                 key={check.id || i}
                 variants={slideUpItem}
-                className="flex items-start gap-2 bg-bg/40 border border-ink/10 rounded-sm px-4 py-3"
+                className="flex items-start gap-2"
               >
                 <span className="mt-1 h-2 w-2 shrink-0 bg-clear rounded-full" />
                 <div className="min-w-0">
@@ -537,7 +653,7 @@ function ReportDisplay({
             <h2 className="font-serif text-xl font-bold text-ink">
               Site Characteristics
             </h2>
-            <p className="mt-1 font-sans text-[10px] text-ink-secondary uppercase tracking-widest font-bold">
+            <p className="mt-1 font-sans text-sm text-ink-secondary uppercase tracking-widest font-bold">
               Neutral factual context
             </p>
           </div>
@@ -552,7 +668,7 @@ function ReportDisplay({
               <motion.div
                 key={check.id || i}
                 variants={slideUpItem}
-                className="flex items-start gap-2 bg-bg/40 border border-ink/10 rounded-sm px-4 py-3"
+                className="flex items-start gap-2"
               >
                 <span className="mt-1 h-2 w-2 shrink-0 bg-ink/20 rounded-full" />
                 <div className="min-w-0">
@@ -570,85 +686,6 @@ function ReportDisplay({
           </motion.div>
         </section>
       )}
-
-      {/* ── Property Profile ── */}
-      {profile && (
-        <section>
-          <div className="mb-4">
-            <h2 className="font-serif text-2xl font-bold text-ink">
-              Property Profile
-            </h2>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-8 border-2 border-ink/20 bg-bg/30 rounded-sm p-6 sm:p-10">
-            {Object.entries(PROFILE_SECTIONS).map(([key, label]) => {
-              // V2: property_profile values are strings, not arrays
-              const text = profile[key as keyof typeof profile];
-              if (!text) return null;
-              return (
-                <div key={key}>
-                  <h3 className="font-sans text-[10px] uppercase tracking-widest text-ink-secondary font-bold mb-3">
-                    {label}
-                  </h3>
-                  {(() => {
-                    const facts = text.split(' \u2022 ').map(s => s.trim()).filter(Boolean);
-                    return facts.length > 1 ? (
-                      <ul className="space-y-1.5">
-                        {facts.map((fact, fi) => (
-                          <li key={fi} className="flex items-start gap-2">
-                            <span className="mt-1.5 h-1 w-1 shrink-0 bg-ink-secondary rounded-full" />
-                            <span className="font-sans text-sm text-ink leading-relaxed">{fact}</span>
-                          </li>
-                        ))}
-                      </ul>
-                    ) : (
-                      <p className="font-sans text-sm text-ink leading-relaxed">{text}</p>
-                    );
-                  })()}
-                </div>
-              );
-            })}
-          </div>
-        </section>
-      )}
-
-      {/* ── Recommended Due Diligence ── */}
-      <section>
-        <div className="mb-4">
-          <h2 className="font-serif text-2xl font-bold text-ink">
-            Recommended Due Diligence
-          </h2>
-        </div>
-        <div className="bg-bg/40 border-2 border-ink/20 rounded-sm p-5">
-          {due_diligence.length > 0 ? (
-            <motion.ol
-              variants={staggerContainer}
-              initial="hidden"
-              whileInView="show"
-              viewport={{ once: true, amount: 0.3 }}
-              className="space-y-4"
-            >
-              {due_diligence.map((item, i) => (
-                <motion.li
-                  key={i}
-                  variants={slideUpItem}
-                  className="flex items-start gap-3"
-                >
-                  <span className="font-sans text-[10px] font-bold text-ink-secondary shrink-0 mt-0.5 w-5">
-                    {String(i + 1).padStart(2, "0")}
-                  </span>
-                  <span className="font-sans text-sm text-ink leading-relaxed">
-                    {item}
-                  </span>
-                </motion.li>
-              ))}
-            </motion.ol>
-          ) : (
-            <p className="font-sans text-sm text-ink-secondary italic">
-              No specific due diligence items identified for this property.
-            </p>
-          )}
-        </div>
-      </section>
 
       {/* ── Exclusions & Limitations ── */}
       <section>
@@ -671,7 +708,6 @@ function ReportDisplay({
             ))}
           </ul>
         ) : (
-          // Fallback static list if LLM didn't return exclusions
           <ul className="grid grid-cols-1 gap-y-2 sm:grid-cols-2">
             {[
               "Title ownership & chain of title",
@@ -691,6 +727,124 @@ function ReportDisplay({
           </ul>
         )}
       </section>
+    </div>
+  );
+
+  return (
+    <div className="mt-2 space-y-16">
+      {/* ── Header: address + coords + map ── */}
+      <div className="space-y-6">
+        <div className="border-2 border-ink/20 grid grid-cols-1 md:grid-cols-4 divide-y-2 md:divide-y-0 md:divide-x-2 divide-ink/20 bg-surface rounded-sm overflow-hidden">
+          <div className="col-span-2 p-5 flex flex-col justify-between min-h-[120px]">
+            <div className="text-sm uppercase tracking-widest text-ink font-bold font-sans mb-2">
+              Subject Property
+            </div>
+            <div className="font-serif text-xl sm:text-2xl text-ink leading-tight">
+              {address}
+            </div>
+          </div>
+          <div className="col-span-1 p-5 flex flex-col justify-between min-h-[120px] bg-bg/80">
+            <div className="text-sm uppercase tracking-widest text-ink font-bold font-sans mb-2">
+              Coordinates
+            </div>
+            {coordinates ? (
+              <div className="font-sans text-ink space-y-1 text-sm font-medium">
+                <div>LAT: {coordinates.lat.toFixed(6)}</div>
+                <div>LNG: {coordinates.lng.toFixed(6)}</div>
+              </div>
+            ) : (
+              <div className="font-sans text-sm text-ink-secondary">N/A</div>
+            )}
+          </div>
+          <div className="col-span-1 relative min-h-[120px]">
+            {coordinates ? (
+              <a
+                href={`https://www.google.com/maps/search/?api=1&query=${coordinates.lat},${coordinates.lng}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="absolute inset-0 overflow-hidden bg-surface group"
+              >
+                <iframe
+                  src={`https://www.openstreetmap.org/export/embed.html?bbox=${coordinates.lng - 0.01},${coordinates.lat - 0.01},${coordinates.lng + 0.01},${coordinates.lat + 0.01}&layer=mapnik&marker=${coordinates.lat},${coordinates.lng}`}
+                  className="absolute top-0 left-0 w-full h-[calc(100%+32px)] border-0 grayscale-[0.5] mix-blend-multiply opacity-90 pointer-events-none"
+                  title="Property location map"
+                  loading="lazy"
+                  tabIndex={-1}
+                />
+                <div className="absolute inset-0 bg-ink/5 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
+                  <span className="bg-surface/90 text-ink font-sans text-xs font-bold px-3 py-1.5 rounded-sm border border-ink/20 shadow-sm backdrop-blur-sm">
+                    Open in Google Maps ↗
+                  </span>
+                </div>
+              </a>
+            ) : (
+              <div className="absolute inset-0 flex items-center justify-center bg-bg/80 font-sans text-sm text-ink-secondary font-bold uppercase">
+                Map Unavailable
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* ── Executive Summary ── */}
+        <div className="mb-6">
+          <h2 className="font-serif text-xl sm:text-2xl font-bold text-ink mb-4">
+            Executive Summary
+          </h2>
+          <div className="font-sans text-sm text-ink leading-relaxed space-y-3 whitespace-pre-line text-justify">
+            {llm?.executive_summary ?? "Summary unavailable."}
+          </div>
+        </div>
+
+        {/* ── Verdict Badge ── */}
+        {llm?.verdict && (
+          <VerdictBadge
+            verdict={llm.verdict}
+            verdict_reason={llm.verdict_reason ?? ""}
+            next_step={llm.next_step ?? ""}
+          />
+        )}
+      </div>
+
+      {/* ── Decision Factors ── */}
+      {llm?.decision_factors && llm.decision_factors.length > 0 && (
+        <section>
+          <div className="mb-4">
+            <h2 className="font-serif text-2xl font-bold text-ink">
+              Why We Reached This Recommendation
+            </h2>
+          </div>
+          <DecisionFactors factors={llm.decision_factors} />
+        </section>
+      )}
+
+      {/* ── Flags & Encumbrances (critical + high) ── */}
+      {flags.length > 0 && (
+        <section>
+          <div className="mb-6 border-b-2 border-ink/20 pb-3">
+            <h2 className="font-serif text-2xl font-bold text-ink">
+              Flags &amp; Encumbrances
+            </h2>
+            <p className="mt-1 font-sans text-sm text-ink-secondary uppercase tracking-widest font-bold">
+              For {USE_LABELS[intendedUse] ?? intendedUse} use
+            </p>
+          </div>
+          <motion.div
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true, amount: 0.2 }}
+            className="space-y-8"
+          >
+            {flags.map((finding, i) => (
+              <FindingCard key={finding.id || i} finding={finding} index={i} manifest={manifest} />
+            ))}
+          </motion.div>
+        </section>
+      )}
+
+      <div className="pt-4">
+        <SecondaryFindings />
+      </div>
     </div>
   );
 }
@@ -719,17 +873,19 @@ function FindingCard({
       className="border-b-2 border-ink/20 pb-6 last:border-b-0"
     >
       <div className="flex items-start gap-4">
-        <span className="font-sans text-[10px] font-bold text-ink-secondary shrink-0 mt-1 w-5">
+        <span className="font-sans text-sm font-bold text-ink-secondary shrink-0 mt-1 w-5">
           {String(index + 1).padStart(2, "0")}
         </span>
         <div className="flex-1 space-y-3">
-          <h3 className="font-serif text-xl sm:text-2xl font-bold text-ink leading-tight">
-            {finding.title}
-          </h3>
+          <div className="flex items-start justify-between gap-3">
+            <h3 className="font-serif text-xl sm:text-2xl font-bold text-ink leading-tight">
+              {finding.title}
+            </h3>
+          </div>
 
           {/* Body (was why_it_matters in V1) */}
           <div>
-            <span className="font-sans text-[10px] uppercase tracking-widest text-ink-secondary font-bold">
+            <span className="font-sans text-sm uppercase tracking-widest text-ink-secondary font-bold">
               Why It Matters
             </span>
             <p className="font-sans text-sm text-ink leading-relaxed mt-1 text-justify">
@@ -740,7 +896,7 @@ function FindingCard({
           {/* Recommendation (was recommended_action in V1) */}
           {finding.recommendation && (
             <div>
-              <span className="font-sans text-[10px] uppercase tracking-widest text-ink-secondary font-bold">
+              <span className="font-sans text-sm uppercase tracking-widest text-ink-secondary font-bold">
                 Recommended Action
               </span>
               <p className="font-sans text-sm text-ink font-medium leading-relaxed mt-1 text-justify">
@@ -749,67 +905,6 @@ function FindingCard({
             </div>
           )}
 
-          {/* Evidence chips — new in V2 */}
-          {finding.evidence_field_ids && finding.evidence_field_ids.length > 0 && manifest && (
-            <div>
-              <span className="font-sans text-[10px] uppercase tracking-widest text-ink-secondary font-bold">
-                Evidence Sources
-              </span>
-              <div className="flex flex-wrap gap-1.5 mt-1.5">
-                {finding.evidence_field_ids.map((fieldId) => (
-                  <button
-                    key={fieldId}
-                    onClick={() => toggleField(fieldId)}
-                    className={`font-mono text-[10px] px-2 py-0.5 rounded border transition-colors ${
-                      expandedField === fieldId
-                        ? "bg-ink text-surface border-ink"
-                        : "bg-bg/60 text-ink-secondary border-ink/20 hover:border-ink/40 hover:text-ink"
-                    }`}
-                  >
-                    {fieldId}
-                  </button>
-                ))}
-              </div>
-
-              {/* Expanded field detail */}
-              {expandedField && expandedEntry && (
-                <motion.div
-                  initial={{ opacity: 0, y: -4 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="mt-2 p-3 bg-bg/60 border border-ink/10 rounded-sm text-xs font-sans space-y-1"
-                >
-                  {expandedEntry.description && (
-                    <p className="text-ink font-medium">{expandedEntry.description}</p>
-                  )}
-                  <div className="flex flex-wrap gap-x-4 gap-y-0.5 text-ink-secondary mt-1">
-                    {expandedEntry.source && <span>Source: <span className="text-ink">{expandedEntry.source}</span></span>}
-                    {expandedEntry.confidence && <span>Confidence: <span className="text-ink capitalize">{expandedEntry.confidence}</span></span>}
-                    {expandedEntry.dataset_vintage && <span>Vintage: <span className="text-ink">{expandedEntry.dataset_vintage}</span></span>}
-                  </div>
-                  {expandedEntry.value !== null && expandedEntry.value !== undefined && (
-                    <p className="text-ink-secondary">
-                      Value: <span className="text-ink font-medium">
-                        {typeof expandedEntry.value === "object"
-                          ? JSON.stringify(expandedEntry.value)
-                          : String(expandedEntry.value)}
-                        {expandedEntry.unit ? ` ${expandedEntry.unit}` : ""}
-                      </span>
-                    </p>
-                  )}
-                  {expandedEntry.source_url && (
-                    <a
-                      href={expandedEntry.source_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-sky-600 hover:underline block mt-1"
-                    >
-                      View source ↗
-                    </a>
-                  )}
-                </motion.div>
-              )}
-            </div>
-          )}
         </div>
       </div>
     </motion.div>

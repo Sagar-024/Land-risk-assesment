@@ -103,10 +103,22 @@ export interface Finding {
   evidence_field_ids: string[];
   body: string;
   recommendation?: string;
+  cost_impact?: string;
+  cost_explanation?: string;
 }
 export interface LLMReport {
   executive_summary: string;
+  verdict: 'proceed' | 'proceed_with_caution' | 'not_recommended' | 'cannot_proceed';
+  verdict_reason: string;
+  next_step: string;
+
+  decision_factors: Array<{
+    factor: string;
+    impact: 'positive' | 'negative' | 'warning';
+    detail: string;
+  }>;
   findings: Finding[];
+  living_here: string;
   property_profile: {
     location: string;
     terrain: string;
@@ -358,36 +370,106 @@ Your job: synthesize a verified Mireye evidence manifest into a structured land 
 
 11. NO LEGAL INTERPRETATION. Do NOT reference case law, regulatory tests, court decisions, or legal standards by name (e.g., "post-Sackett test", "Rapanos", "Section 404 jurisdiction", "WOTUS", "Clean Water Act applicability"). Instead say: "[risk description] — verify regulatory applicability with [relevant agency, e.g., Army Corps of Engineers, state environmental agency]."
 
-═══ EXECUTIVE SUMMARY — must answer 3 questions ═══
+═══ EXECUTIVE SUMMARY — structured, decisive ═══
 
-The executive_summary MUST answer these three questions in 3-5 sentences total, in this order:
-1. What is the single biggest problem? Lead with it. Be decisive.
-2. What is good? One sentence on the strongest positive.
-3. What should the buyer verify first? One sentence on the highest-priority next step.
+The executive_summary MUST be exactly 4 sentences, answering in this order (and NEVER leak API field names here):
+1. Direct answer: "Yes, this land works for [requested use]." or "No, this land does not work for [requested use]." or "Possible, but [key blocker] must be resolved first."
+2. The single biggest blocker in plain English — what stands between the buyer and using this land.
+3. The strongest positive about this property.
+4. The one thing to verify first before proceeding.
 
-Do NOT write a generic overview. Do NOT list everything. Be decisive and specific.
+Do NOT write a generic overview. Do NOT list everything. Be decisive and specific. The first sentence must be the verdict — the buyer should know the answer before reading further.
+
+═══ VERDICT — evidence-derived, strict rules ═══
+
+The verdict field MUST be determined by these rules (no discretion):
+- "cannot_proceed": any critical finding that legally blocks the intended use (e.g., land use legally prohibited by zoning, parcel in active superfund site, structure in FEMA high-risk floodway)
+- "not_recommended": 2+ high findings OR 1 high finding with no strong offsetting low findings
+- "proceed_with_caution": 1 high finding that is manageable, OR multiple moderate findings that together require attention
+- "proceed": zero critical or high findings, and manageable moderate findings
+
+verdict_reason: one sentence explaining WHY this verdict, citing the specific findings by ID.
+next_step: the single most important action the buyer should take next, tied to the top finding.
+
+
+
+═══ DECISION FACTORS — what actually matters ═══
+
+The decision_factors array MUST list the 3-5 factors that most influence the buy/no-buy decision for THIS buyer's stated use. Each factor:
+{
+  "factor": "short label (e.g., Flood risk, Zoning fit, Road access)",
+  "impact": "positive" | "negative" | "warning",
+  "detail": "1-2 sentences with evidence"
+}
+
+Rules:
+- Positive = evidence actively supports the intended use
+- Negative = evidence works against the intended use
+- Warning = data is uncertain, missing, or needs verification
+- At least one factor should address the buyer's specific use case
+- NEVER expose raw field names in the text.
+
+═══ UX / COMMUNICATION GUIDELINES ═══
+
+Write in the tone of a professional land consultant advising a client. Every paragraph MUST be understandable by someone with no GIS, engineering, surveying, or environmental background. Before writing each sentence, ask: "Would my parents understand this?" If not, rewrite it in plain English.
+
+CRITICAL RULES:
+1. NEVER expose raw Mireye field identifiers, database keys, or API attributes in the report body (e.g., do NOT write "within_floodplain_polygon: false" or "seismic_design_category"). These may ONLY appear in the dedicated "evidence_field_ids" JSON arrays.
+2. Round all decimal units to the nearest whole number (e.g., 18 km, not 18.0 km). Do not write "0.003 m from road", write "Direct access from road". Do not write "30% canopy", write "heavily wooded". Do not write "8,298,552 m²", just use acres.
+3. NEVER use terms like "GAP status 4", "Section 7 consultation", or "ASCE 7" without explaining them in plain English.
+4. Translate all data into practical consequences. Do not write "Evidence -> Translation". Just write the conclusion and practical implication.
+
+═══ FINDINGS — Translation mandatory ═══
+
+Every finding.body MUST explain what the data means for the buyer.
+Structure each body purely as the Conclusion & Practical Impact. Do not regurgitate raw data.
+
+Example: Bad: "The FEMA floodplain data shows this parcel is within a floodplain (within_floodplain_polygon = true)." 
+Good: "The parcel sits within the FEMA 100-year floodplain. This means if you're building here, federal law requires flood insurance for any federally-backed mortgage, and your foundation must be elevated above the base flood elevation."
+
+═══ LIVING HERE — daily realities ═══
+
+The living_here field MUST describe the practical daily realities of this property. 2-3 sentences covering:
+1. The physical environment (terrain, vegetation, isolation, noise).
+2. Practical daily realities (road access quality, nearest services, commute).
+3. The overall vibe.
+
+Write in the style of a professional land consultant, not a travel writer. Use evidence from the manifest. Do NOT invent details.
+
+═══ PROPERTY PROFILE — narrative, not bullets ═══
+
+The property_profile MUST be a JSON object with these 5 keys. Each value is a 2-3 sentence NARRATIVE paragraph — NOT bullet points. Write like you're describing the property to a friend over coffee. Translate ALL raw data into plain English (e.g., use acres, not square meters; use 'direct access', not '0.003 m').
+
+{
+  "location": "Where is this? County, state, nearest town, nearest road. How remote is it?",
+  "terrain": "What does the land look like? Elevation, slope, vegetation (use terms like 'heavily wooded' instead of percentages). Is it flat, hilly, forested, open?",
+  "environment": "Natural hazards and ecology. Flood zone status, wildfire risk, nearby contamination, wetlands, protected areas.",
+  "infrastructure": "What's available? Roads (paved/unpaved), utilities (power, water, sewer, fiber). Say 'Utility availability should be confirmed' if data is missing. Never say 'not reported'.",
+  "parcel": "The numbers. APN, acreage (do NOT use square meters), zoning code (raw, no interpretation), any existing structures, assessed value if available."
+}
+
+Each paragraph must be grounded in manifest evidence. Do NOT invent details.
 
 ═══ RECOMMENDATIONS — must tie to evidence ═══
 
 Every \`recommendation\` field MUST name the specific evidence that triggers it. Never write a generic recommendation. Bad: "Conduct Phase I ESA." Good: "Conduct Phase I ESA — 2 brownfields within 8km (nearest 1.2km) and a hazardous facility 2km away."
 
-═══ PROPERTY PROFILE — structured, not paragraph ═══
-
-The property_profile MUST be a JSON object with these 5 keys, each a 1-2 sentence factual statement using only manifest evidence:
-{
-  "location": "County, state, locality, nearest road",
-  "terrain": "Elevation, slope, aspect, coast distance if coastal",
-  "environment": "Land cover, wetlands, protected areas, critical habitat, contamination proximity",
-  "infrastructure": "Roads, utilities (power/fiber/water), emergency services, nearest urban area",
-  "parcel": "APN, area, owner, zoning code (raw, no interpretation), existing buildings if any"
-}
-Format: Separate each distinct fact with " • " (space-bullet-space). Do NOT write a prose paragraph. Keep each section to 3–5 bullet facts. Example: "Monterey County, California • Locality: Big Sur, unincorporated • Nearest road: CA-1 (0 m from parcel edge)". Report raw codes, do not interpret them.
-
 ═══ OUTPUT FORMAT ═══
 
 Respond with a single JSON object (no markdown fences, no prose outside JSON) with this exact shape:
 {
-  "executive_summary": "3-5 sentences answering the 3 required questions",
+  "executive_summary": "exactly 4 sentences: verdict → blocker → positive → next step",
+  "verdict": "proceed|proceed_with_caution|not_recommended|cannot_proceed",
+  "verdict_reason": "one sentence explaining why, citing finding IDs",
+  "next_step": "single most important action, tied to top finding",
+
+  "decision_factors": [
+    {
+      "factor": "short label",
+      "impact": "positive|negative|warning",
+      "detail": "1-2 sentences with evidence"
+    }
+  ],
   "findings": [
     {
       "id": "FLOOD-01",
@@ -395,16 +477,17 @@ Respond with a single JSON object (no markdown fences, no prose outside JSON) wi
       "severity": "critical|high|moderate|low|info",
       "category": "flood|seismic|wildfire|contamination|geotechnical|access|utility|regulatory|environmental|climate|infrastructure|other",
       "evidence_field_ids": ["field_name_from_manifest"],
-      "body": "2-4 sentence evidence-anchored explanation. Every claim must be traceable to a cited field.",
-      "recommendation": "specific next step for the buyer, WITH the evidence that triggers it"
+      "body": "evidence in plain English → practical impact (2 parts)",
+      "recommendation": "specific next step with triggering evidence"
     }
   ],
+  "living_here": "2-3 sentences: what you'd experience daily standing on this parcel",
   "property_profile": {
-    "location": "...",
-    "terrain": "...",
-    "environment": "...",
-    "infrastructure": "...",
-    "parcel": "..."
+    "location": "2-3 sentence narrative paragraph",
+    "terrain": "2-3 sentence narrative paragraph",
+    "environment": "2-3 sentence narrative paragraph",
+    "infrastructure": "2-3 sentence narrative paragraph",
+    "parcel": "2-3 sentence narrative paragraph"
   },
   "recommended_due_diligence": ["action 1 — with triggering evidence", "action 2 — with triggering evidence"],
   "exclusions_and_limitations": ["limitation 1", "limitation 2"]
@@ -619,7 +702,7 @@ function validateReport(parsed: LLMReport, manifest: Manifest): Validation {
     validFindings.push(f);
   });
 
-  for (const req of ['executive_summary', 'findings', 'property_profile', 'recommended_due_diligence', 'exclusions_and_limitations']) {
+  for (const req of ['executive_summary', 'verdict', 'verdict_reason', 'next_step', 'findings', 'decision_factors', 'living_here', 'property_profile', 'recommended_due_diligence', 'exclusions_and_limitations']) {
     if (!(req in parsed)) issues.push({ type: 'missing_top_level', detail: req });
   }
 
